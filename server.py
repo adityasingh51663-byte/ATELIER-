@@ -877,13 +877,18 @@ class AtelierRequestHandler(http.server.SimpleHTTPRequestHandler):
             # Send verification email directly to user's real email inbox
             sent, err = send_verification_email(email, code, user_name)
 
+            msg = f'A 6-digit verification code has been sent to your email ({masked_email}). Please check your Inbox and Spam folder.'
+            if not sent:
+                msg = f'Verification request created for {masked_email}. Note: Real email delivery requires setting up your Gmail sender in email_config.json.'
+
             # ZERO-KNOWLEDGE API RESPONSE: Code is NEVER sent back to client
             self.send_json_response({
                 'success': True,
-                'message': f'A 6-digit verification code has been sent to your email ({masked_email}). Please check your Inbox and Spam folder.',
+                'message': msg,
                 'email': email,
                 'maskedEmail': masked_email,
                 'emailSent': sent,
+                'smtpConfigured': bool(get_smtp_config().get('user') and get_smtp_config().get('pass')),
                 'userName': user_name
             })
             return
@@ -908,6 +913,76 @@ class AtelierRequestHandler(http.server.SimpleHTTPRequestHandler):
                 'message': f'SMTP credentials saved successfully for {user}!'
             })
             return
+
+        # --- TEST SMTP EMAIL DISPATCH ---
+        if path == '/api/auth/smtp-test':
+            data = self.read_json_body() or {}
+            host = (data.get('host') or 'smtp.gmail.com').strip()
+            port = int(data.get('port') or 587)
+            user = (data.get('user') or '').strip()
+            password = (data.get('pass') or data.get('password') or '').strip()
+            to_email = (data.get('toEmail') or user).strip()
+            sender_name = (data.get('senderName') or 'ATELIER Security').strip()
+
+            if not user or not password:
+                self.send_json_response({'success': False, 'message': 'Please provide both Gmail address and 16-char App Password.'}, 400)
+                return
+
+            try:
+                msg = MIMEMultipart("alternative")
+                msg["Subject"] = "✨ ATELIER Email Delivery Test - Success!"
+                msg["From"] = f"{sender_name} <{user}>"
+                msg["To"] = to_email
+
+                test_html = f"""<!DOCTYPE html>
+<html>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f7f6f2; padding: 24px;">
+  <div style="max-width: 480px; margin: 0 auto; background: #ffffff; border-radius: 16px; padding: 28px; border: 1px solid #e7e5e4;">
+    <h2 style="color: #1c1917; margin-top: 0;">✨ ATELIER Mail Server Test</h2>
+    <p style="color: #44403c; font-size: 14px; line-height: 1.5;">
+      Great news! Your Gmail SMTP configuration is working perfectly. You will now receive all password reset verification codes directly in your inbox.
+    </p>
+    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 12px 16px; border-radius: 12px; color: #166534; font-size: 13px; font-weight: 600;">
+      ✓ Connected to {host}:{port} via TLS
+    </div>
+  </div>
+</body>
+</html>"""
+                msg.attach(MIMEText("ATELIER Email Test: Success! Connected to Gmail SMTP.", "plain"))
+                msg.attach(MIMEText(test_html, "html"))
+
+                if port == 465:
+                    with smtplib.SMTP_SSL(host, port, timeout=12) as server_smtp:
+                        server_smtp.login(user, password)
+                        server_smtp.sendmail(user, [to_email], msg.as_string())
+                else:
+                    with smtplib.SMTP(host, port, timeout=12) as server_smtp:
+                        server_smtp.ehlo()
+                        server_smtp.starttls()
+                        server_smtp.ehlo()
+                        server_smtp.login(user, password)
+                        server_smtp.sendmail(user, [to_email], msg.as_string())
+
+                # Automatically save valid working configuration
+                save_smtp_config(host, port, user, password, sender_name)
+                print(f"[Email Config] SMTP tested and saved successfully for {user}", flush=True)
+
+                self.send_json_response({
+                    'success': True,
+                    'message': f'✨ Test email sent successfully to {to_email}! SMTP configuration saved.'
+                })
+                return
+            except Exception as e:
+                err_str = str(e)
+                print(f"[Email Test Error] {err_str}", flush=True)
+                user_msg = err_str
+                if "535" in err_str or "BadCredentials" in err_str or "Username and Password not accepted" in err_str:
+                    user_msg = "Google rejected credentials. Make sure you use a 16-character Google 'App Password' (from https://myaccount.google.com/apppasswords), NOT your regular account password."
+                self.send_json_response({
+                    'success': False,
+                    'message': f'Could not send email: {user_msg}'
+                }, 400)
+                return
 
         # --- FORGOT PASSWORD - STEP 2 (VERIFY CODE & SET NEW PASSWORD) ---
         if path == '/api/auth/reset-password':
