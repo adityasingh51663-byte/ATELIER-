@@ -281,6 +281,12 @@
               <span>Add Clothing</span>
             </button>
 
+            <!-- Batch Import Multi-Garments Button -->
+            <button onclick="openBatchImportModal()" class="hidden md:flex items-center gap-1.5 py-2 px-3 bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-200/80 rounded-xl text-xs font-semibold shadow-sm transition-all active:scale-95" title="Upload multiple clothing photos at once">
+              <i class="fa-solid fa-layer-group text-warm-gold text-xs"></i>
+              <span>Batch Import</span>
+            </button>
+
             <!-- Quick Log Today Button -->
             <button onclick="quickLogToday()" class="flex items-center gap-1.5 py-2 px-3 bg-warm-champagne hover:bg-stone-200/80 border border-warm-gold/40 text-stone-800 rounded-xl text-xs font-semibold shadow-sm transition-all active:scale-95">
               <i class="fa-solid fa-wand-magic-sparkles text-warm-gold text-xs"></i>
@@ -484,6 +490,10 @@
             <button onclick="openAddItemModal()" class="px-5 py-2.5 bg-stone-900 hover:bg-stone-800 text-stone-50 rounded-xl text-xs font-semibold shadow-sm transition-all flex items-center gap-2">
               <i class="fa-solid fa-plus text-warm-gold"></i>
               <span>Add First Garment</span>
+            </button>
+            <button onclick="openBatchImportModal()" class="px-4 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-200 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5">
+              <i class="fa-solid fa-layer-group text-warm-gold"></i>
+              <span>Batch Import Photos</span>
             </button>
             <button onclick="loadFreshDemoDataPrompt()" class="px-4 py-2.5 bg-warm-champagne hover:bg-stone-200 text-stone-800 border border-warm-gold/30 rounded-xl text-xs font-semibold transition-all">
               Load Curated Demo Items
@@ -814,42 +824,66 @@
       <form id="item-form" onsubmit="handleSaveItem(event)" class="p-6 space-y-5 overflow-y-auto">
         <input type="hidden" id="item-id-input">
 
-        <!-- Image Upload / Camera Area -->
+        <!-- Image Upload / Camera Area (Multiple Images Supported) -->
         <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-2">Garment Photo</label>
+          <div class="flex items-center justify-between mb-2">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-stone-600">Garment Photos <span class="text-stone-400 font-normal lowercase">(multiple photos supported)</span></label>
+            <span id="item-gallery-count-badge" class="text-[11px] font-semibold text-warm-gold hidden"><i class="fa-solid fa-images mr-1"></i><span id="item-photo-count-num">0</span> photos</span>
+          </div>
           
           <div class="flex flex-col items-center">
-            <!-- Preview Box -->
-            <div id="item-image-preview-container" class="relative w-full h-48 sm:h-56 rounded-2xl bg-stone-100 border-2 border-dashed border-stone-300 overflow-hidden flex flex-col items-center justify-center text-center group cursor-pointer hover:border-stone-900 transition-colors" onclick="document.getElementById('item-file-input').click()">
+            <!-- Preview Box / Drag & Drop Zone -->
+            <div id="item-image-preview-container" class="relative w-full h-48 sm:h-56 rounded-2xl bg-stone-100 border-2 border-dashed border-stone-300 overflow-hidden flex flex-col items-center justify-center text-center group cursor-pointer hover:border-stone-900 transition-colors" onclick="document.getElementById('item-file-input').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
               <img id="item-image-preview" src="" alt="Preview" class="hidden w-full h-full object-contain p-2">
               
-              <div id="item-image-placeholder" class="p-4 space-y-2">
+              <div id="item-image-placeholder" class="p-4 space-y-2 pointer-events-none">
                 <div class="w-12 h-12 rounded-full bg-stone-200 text-stone-500 mx-auto flex items-center justify-center group-hover:scale-110 transition-transform">
                   <i class="fa-solid fa-camera text-lg"></i>
                 </div>
                 <div>
-                  <p class="text-xs font-semibold text-stone-700">Click to upload photo or choose image</p>
-                  <p class="text-[11px] text-stone-400">Auto-compressed HTML5 Canvas (JPEG/WebP)</p>
+                  <p class="text-xs font-semibold text-stone-700">Click or Drag & Drop Photos Here</p>
+                  <p class="text-[11px] text-stone-400">Select 1 or multiple photos (Front, Back, Details)</p>
                 </div>
               </div>
 
-              <!-- Remove / Change overlay when image is set -->
-              <button type="button" id="remove-image-btn" onclick="removeImage(event)" class="hidden absolute top-2 right-2 w-7 h-7 rounded-full bg-stone-900/80 text-white flex items-center justify-center text-xs hover:bg-rose-600 transition-colors shadow-md">
+              <!-- Remove active image button -->
+              <button type="button" id="remove-image-btn" onclick="removeActiveImage(event)" class="hidden absolute top-2 right-2 w-7 h-7 rounded-full bg-stone-900/80 text-white flex items-center justify-center text-xs hover:bg-rose-600 transition-colors shadow-md z-20" title="Delete current photo">
                 <i class="fa-solid fa-trash-can"></i>
               </button>
+
+              <!-- Star / Cover Photo Indicator -->
+              <div id="cover-photo-badge" class="hidden absolute top-2 left-2 px-2 py-0.5 rounded-full bg-stone-900/85 backdrop-blur-sm text-warm-gold text-[10px] font-bold shadow-sm flex items-center gap-1 z-20">
+                <i class="fa-solid fa-star text-[9px] text-warm-gold"></i> Primary Cover
+              </div>
             </div>
 
-            <!-- Hidden File Input -->
-            <input type="file" id="item-file-input" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+            <!-- Multi-Image Thumbnails Gallery Strip -->
+            <div id="item-gallery-strip" class="w-full mt-2.5 hidden">
+              <div class="flex items-center justify-between mb-1.5 px-0.5">
+                <span class="text-[11px] font-semibold text-stone-600">Garment Photo Angles</span>
+                <span class="text-[10px] text-stone-400">★ Starred is primary cover</span>
+              </div>
+              <div id="item-gallery-thumbnails" class="flex items-center gap-2 overflow-x-auto pb-1.5 pt-0.5 scrollbar-thin max-w-full">
+                <!-- Dynamically populated thumbnails -->
+              </div>
+            </div>
+
+            <!-- Hidden Multi-File Input -->
+            <input type="file" id="item-file-input" accept="image/*" multiple class="hidden" onchange="handleImageUpload(event)">
             
-            <!-- Quick Preset Swatches Button & Camera Trigger -->
-            <div class="mt-2 w-full flex items-center justify-between gap-2">
+            <!-- Quick Preset Swatches Button & Camera Trigger & Add More -->
+            <div class="mt-2.5 w-full flex items-center justify-between gap-2">
               <button type="button" onclick="openPresetPicker()" class="text-xs text-warm-gold hover:text-stone-900 font-semibold flex items-center gap-1">
                 <i class="fa-solid fa-wand-magic-sparkles"></i> Sample Presets
               </button>
-              <button type="button" onclick="document.getElementById('item-camera-input').click()" class="text-xs text-stone-600 hover:text-stone-900 font-medium flex items-center gap-1">
-                <i class="fa-solid fa-camera"></i> Camera Capture
-              </button>
+              <div class="flex items-center gap-2">
+                <button type="button" onclick="document.getElementById('item-file-input').click()" class="text-xs text-stone-700 hover:text-stone-900 font-medium flex items-center gap-1.5 bg-stone-100 hover:bg-stone-200 px-2.5 py-1 rounded-lg transition-colors">
+                  <i class="fa-solid fa-plus text-[10px] text-warm-gold"></i> Add Photos
+                </button>
+                <button type="button" onclick="document.getElementById('item-camera-input').click()" class="text-xs text-stone-700 hover:text-stone-900 font-medium flex items-center gap-1 bg-stone-100 hover:bg-stone-200 px-2.5 py-1 rounded-lg transition-colors">
+                  <i class="fa-solid fa-camera text-[10px]"></i> Camera
+                </button>
+              </div>
               <input type="file" id="item-camera-input" accept="image/*" capture="environment" class="hidden" onchange="handleImageUpload(event)">
             </div>
           </div>
@@ -933,16 +967,30 @@
     <div class="relative w-full max-w-lg bg-white rounded-3xl shadow-float border border-stone-200/80 overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200">
       
       <!-- Top Image & Badge Container -->
-      <div class="relative w-full h-64 sm:h-72 bg-stone-100 flex items-center justify-center overflow-hidden">
-        <img id="detail-image" src="" alt="Garment" class="w-full h-full object-contain p-4">
+      <div class="relative w-full h-64 sm:h-72 bg-stone-100 flex items-center justify-center overflow-hidden group select-none">
+        <img id="detail-image" src="" alt="Garment" class="w-full h-full object-contain p-4 transition-all duration-200">
         
+        <!-- Image Nav Arrows (if multiple images) -->
+        <button id="detail-prev-img-btn" onclick="prevDetailImage(event)" class="hidden absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 hover:bg-white text-stone-800 backdrop-blur-sm flex items-center justify-center shadow-md transition-all active:scale-95 z-20" title="Previous photo">
+          <i class="fa-solid fa-chevron-left text-xs"></i>
+        </button>
+        <button id="detail-next-img-btn" onclick="nextDetailImage(event)" class="hidden absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 hover:bg-white text-stone-800 backdrop-blur-sm flex items-center justify-center shadow-md transition-all active:scale-95 z-20" title="Next photo">
+          <i class="fa-solid fa-chevron-right text-xs"></i>
+        </button>
+
+        <!-- Photo Counter Badge (top-left) -->
+        <div id="detail-img-counter" class="hidden absolute top-3 left-3 px-2.5 py-1 bg-stone-900/80 backdrop-blur-md text-white rounded-full text-[11px] font-semibold shadow-sm flex items-center gap-1.5 z-20">
+          <i class="fa-solid fa-images text-[10px] text-warm-gold"></i>
+          <span id="detail-img-counter-text">1 / 1</span>
+        </div>
+
         <!-- Close Button -->
-        <button onclick="closeDetailModal()" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 hover:bg-white text-stone-800 backdrop-blur-sm flex items-center justify-center shadow-md transition-colors">
+        <button onclick="closeDetailModal()" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 hover:bg-white text-stone-800 backdrop-blur-sm flex items-center justify-center shadow-md transition-colors z-20">
           <i class="fa-solid fa-xmark text-sm"></i>
         </button>
 
         <!-- Category, Color & Season Floating Pill -->
-        <div class="absolute bottom-3 left-3 flex items-center gap-1.5 flex-wrap">
+        <div class="absolute bottom-3 left-3 flex items-center gap-1.5 flex-wrap z-20">
           <span id="detail-category-badge" class="px-3 py-1 bg-stone-900/90 backdrop-blur-md text-stone-50 rounded-full text-xs font-semibold capitalize shadow-sm">Tops</span>
           <span id="detail-color-badge" class="px-3 py-1 bg-white/90 backdrop-blur-md text-stone-800 rounded-full text-xs font-semibold shadow-sm flex items-center gap-1.5">
             <span id="detail-color-dot" class="w-2.5 h-2.5 rounded-full inline-block"></span>
@@ -950,6 +998,11 @@
           </span>
           <span id="detail-season" class="px-2.5 py-1 bg-white/80 backdrop-blur-md text-stone-700 rounded-full text-xs font-semibold shadow-sm">All Seasons</span>
         </div>
+      </div>
+
+      <!-- Detail Modal Image Thumbnails Bar (shown if multiple photos) -->
+      <div id="detail-gallery-bar" class="hidden px-6 py-2.5 border-b border-stone-100 bg-stone-50/70 overflow-x-auto">
+        <div id="detail-gallery-thumbnails" class="flex items-center gap-2"></div>
       </div>
 
       <!-- Detail Info Body -->
@@ -1169,7 +1222,7 @@
       <div class="p-4 bg-stone-50 rounded-2xl border border-stone-200 flex flex-col items-center justify-center">
         <!-- QR Code Container -->
         <div class="p-3 bg-white rounded-2xl shadow-sm border border-stone-200 inline-block mb-3">
-          <img id="mobile-qr-image" src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=https://4e688bb4eace96.lhr.life/index.html" alt="Scan QR Code" class="w-48 h-48 rounded-xl object-contain mx-auto">
+          <img id="mobile-qr-image" src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=https://ad543b18eeaea1.lhr.life/index.html" alt="Scan QR Code" class="w-48 h-48 rounded-xl object-contain mx-auto">
         </div>
         <p class="text-xs font-semibold text-stone-800">Scan with your Phone Camera</p>
         <p class="text-[11px] text-stone-500 mt-0.5">Secure HTTPS Public Link (Works on Any Wi-Fi or Mobile 4G/5G anywhere).</p>
@@ -1178,7 +1231,7 @@
       <div class="text-left space-y-2">
         <label class="block text-[11px] font-semibold uppercase tracking-wider text-stone-500">Public Everywhere Link:</label>
         <div class="flex items-center gap-2">
-          <input type="text" id="mobile-url-input" readonly value="https://4e688bb4eace96.lhr.life/index.html" class="flex-1 px-3 py-2 text-xs font-mono bg-stone-50 border border-stone-200 rounded-xl text-stone-800 focus:outline-none select-all">
+          <input type="text" id="mobile-url-input" readonly value="https://ad543b18eeaea1.lhr.life/index.html" class="flex-1 px-3 py-2 text-xs font-mono bg-stone-50 border border-stone-200 rounded-xl text-stone-800 focus:outline-none select-all">
           <button onclick="copyMobileUrl()" class="px-3 py-2 bg-stone-900 text-stone-50 rounded-xl text-xs font-semibold hover:bg-stone-800 transition-colors flex items-center gap-1">
             <i class="fa-regular fa-copy"></i> Copy
           </button>
@@ -1189,6 +1242,66 @@
         <span><i class="fa-solid fa-lock text-emerald-500 mr-1"></i> HTTPS Active Tunnel</span>
         <span>Everywhere Access</span>
       </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 6: BATCH MULTI-GARMENT PHOTO IMPORTER -->
+  <!-- ========================================================================= -->
+  <div id="modal-batch-import" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto glass-backdrop">
+    <div class="relative w-full max-w-3xl bg-white rounded-3xl shadow-float border border-stone-200/80 overflow-hidden my-auto max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 duration-200">
+      
+      <!-- Header -->
+      <div class="px-6 py-4 border-b border-stone-100 flex items-center justify-between bg-stone-50/60">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-amber-500/10 text-warm-gold flex items-center justify-center text-lg">
+            <i class="fa-solid fa-layer-group"></i>
+          </div>
+          <div>
+            <h3 class="font-serif text-lg font-bold text-stone-900">Batch Garment Importer</h3>
+            <p class="text-xs text-stone-500">Upload multiple clothing photos at once to quickly populate your wardrobe.</p>
+          </div>
+        </div>
+        <button onclick="closeBatchImportModal()" class="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 flex items-center justify-center transition-colors">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="p-6 space-y-5 overflow-y-auto flex-1">
+        <!-- Dropzone / Picker -->
+        <div id="batch-dropzone" class="border-2 border-dashed border-stone-300 rounded-2xl p-6 text-center cursor-pointer hover:border-stone-900 transition-colors bg-stone-50/50 group" onclick="document.getElementById('batch-file-input').click()" ondragover="handleBatchDragOver(event)" ondragleave="handleBatchDragLeave(event)" ondrop="handleBatchDrop(event)">
+          <div class="w-12 h-12 rounded-full bg-stone-200 text-stone-600 mx-auto flex items-center justify-center group-hover:scale-110 transition-transform mb-2">
+            <i class="fa-solid fa-cloud-arrow-up text-xl"></i>
+          </div>
+          <p class="text-sm font-semibold text-stone-800">Select or Drag & Drop Multiple Garment Photos</p>
+          <p class="text-xs text-stone-400 mt-1">Pick 2, 5, 10, or 20 photos at once • Auto-optimizes quality & dimensions</p>
+          <input type="file" id="batch-file-input" accept="image/*" multiple class="hidden" onchange="handleBatchFiles(event)">
+        </div>
+
+        <!-- Batch Items Grid -->
+        <div id="batch-items-container" class="hidden space-y-3">
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-stone-600" id="batch-count-title">Pending Garments (0)</h4>
+            <button type="button" onclick="document.getElementById('batch-file-input').click()" class="text-xs font-semibold text-warm-gold hover:text-stone-900 flex items-center gap-1">
+              <i class="fa-solid fa-plus"></i> Add More Photos
+            </button>
+          </div>
+          <div id="batch-items-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-72 overflow-y-auto p-1">
+            <!-- Dynamically populated draft cards -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="px-6 py-4 border-t border-stone-100 flex items-center justify-between bg-stone-50/40">
+        <button type="button" onclick="closeBatchImportModal()" class="px-4 py-2.5 rounded-xl border border-stone-200 text-xs font-semibold text-stone-600 hover:bg-stone-100 transition-colors">Cancel</button>
+        <button type="button" id="batch-import-submit-btn" onclick="saveBatchGarments()" disabled class="px-6 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 disabled:opacity-40 disabled:cursor-not-allowed text-stone-50 text-xs font-semibold shadow-md transition-all flex items-center gap-2">
+          <i class="fa-solid fa-check"></i>
+          <span>Import All Garments</span>
+        </button>
+      </div>
+
     </div>
   </div>
 
@@ -2441,6 +2554,14 @@
               <!-- Top Right: Color Dot -->
               <div class="absolute top-2.5 right-2.5 w-4 h-4 rounded-full border-2 border-white shadow-sm" style="background-color: ${colorHex}" title="${escapeHtml(item.colorName || 'Color')}"></div>
 
+              <!-- Multi-Photo Count Badge if multiple images -->
+              ${(item.images && item.images.length > 1) ? `
+                <div class="absolute bottom-2.5 right-2.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-stone-900/80 backdrop-blur-md text-stone-100 shadow-sm flex items-center gap-1 z-10">
+                  <i class="fa-solid fa-images text-warm-gold text-[9px]"></i>
+                  <span>${item.images.length}</span>
+                </div>
+              ` : ''}
+
               <!-- Hover Quick Action Overlay -->
               <div class="absolute inset-0 bg-stone-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 p-2">
                 <button type="button" onclick="event.stopPropagation(); quickAddGarmentToToday('${item.id}')" class="px-3 py-1.5 bg-white hover:bg-warm-champagne text-stone-900 rounded-xl text-xs font-semibold shadow-lg transition-transform active:scale-95 flex items-center gap-1">
@@ -2468,16 +2589,18 @@
     // =========================================================================
     // MODAL 1 LOGIC: ADD / EDIT GARMENT WITH COMPRESSION
     // =========================================================================
-    let currentUploadedImageBase64 = null;
+    // MODAL 1 LOGIC: ADD / EDIT GARMENT WITH MULTI-IMAGE COMPRESSION & GALLERY
+    // =========================================================================
+    let currentUploadedImages = [];
+    let activePreviewIndex = 0;
+    let primaryCoverIndex = 0;
 
     function openAddItemModal(editId = null) {
       const form = document.getElementById('item-form');
       form.reset();
-      currentUploadedImageBase64 = null;
-      document.getElementById('item-image-preview').src = '';
-      document.getElementById('item-image-preview').classList.add('hidden');
-      document.getElementById('item-image-placeholder').classList.remove('hidden');
-      document.getElementById('remove-image-btn').classList.add('hidden');
+      currentUploadedImages = [];
+      activePreviewIndex = 0;
+      primaryCoverIndex = 0;
 
       if (editId) {
         const item = userWardrobe.find(i => i.id === editId);
@@ -2493,19 +2616,20 @@
           document.getElementById('item-tags').value = item.tags || '';
           document.getElementById('item-price').value = item.price || '';
 
-          if (item.image) {
-            currentUploadedImageBase64 = item.image;
-            document.getElementById('item-image-preview').src = item.image;
-            document.getElementById('item-image-preview').classList.remove('hidden');
-            document.getElementById('item-image-placeholder').classList.add('hidden');
-            document.getElementById('remove-image-btn').classList.remove('hidden');
+          if (Array.isArray(item.images) && item.images.length > 0) {
+            currentUploadedImages = [...item.images];
+          } else if (item.image) {
+            currentUploadedImages = [item.image];
           }
+          activePreviewIndex = 0;
+          primaryCoverIndex = 0;
         }
       } else {
         document.getElementById('item-modal-title').textContent = 'Add Clothing Item';
         document.getElementById('item-id-input').value = '';
       }
 
+      renderItemFormGallery();
       document.getElementById('modal-item').classList.remove('hidden');
       document.getElementById('modal-item').classList.add('flex');
     }
@@ -2523,61 +2647,216 @@
       }
     }
 
-    function handleImageUpload(e) {
-      const file = e.target.files && e.target.files[0];
-      if (!file) return;
+    function compressImageFile(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const img = new Image();
+          img.onload = () => {
+            try {
+              const canvas = document.createElement('canvas');
+              let width = img.width;
+              let height = img.height;
+              const maxDim = 720;
 
-      // Auto-compress via HTML5 Canvas to prevent storage limits (Max 700x700px JPEG)
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const img = new Image();
-        img.onload = () => {
-          try {
-            const canvas = document.createElement('canvas');
-            let width = img.width;
-            let height = img.height;
-            const maxDim = 700;
+              if (width > height && width > maxDim) {
+                height = Math.round((height * maxDim) / width);
+                width = maxDim;
+              } else if (height > maxDim) {
+                width = Math.round((width * maxDim) / height);
+                height = maxDim;
+              }
 
-            if (width > height && width > maxDim) {
-              height = Math.round((height * maxDim) / width);
-              width = maxDim;
-            } else if (height > maxDim) {
-              width = Math.round((width * maxDim) / height);
-              height = maxDim;
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, width, height);
+
+              const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+              resolve(compressedDataUrl);
+            } catch (err) {
+              reject(err);
             }
-
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-
-            const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.82);
-            currentUploadedImageBase64 = compressedDataUrl;
-
-            document.getElementById('item-image-preview').src = compressedDataUrl;
-            document.getElementById('item-image-preview').classList.remove('hidden');
-            document.getElementById('item-image-placeholder').classList.add('hidden');
-            document.getElementById('remove-image-btn').classList.remove('hidden');
-            showToast('Photo compressed & optimized for wardrobe!', 'info');
-          } catch (err) {
-            console.error("Image processing error", err);
-            showToast('Failed to optimize image, please try another.', 'error');
-          }
+          };
+          img.onerror = reject;
+          img.src = event.target.result;
         };
-        img.src = event.target.result;
-      };
-      reader.readAsDataURL(file);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
     }
 
-    function removeImage(e) {
+    function handleDragOver(e) {
+      e.preventDefault();
       e.stopPropagation();
-      currentUploadedImageBase64 = null;
-      document.getElementById('item-file-input').value = '';
-      document.getElementById('item-camera-input').value = '';
-      document.getElementById('item-image-preview').src = '';
-      document.getElementById('item-image-preview').classList.add('hidden');
-      document.getElementById('item-image-placeholder').classList.remove('hidden');
-      document.getElementById('remove-image-btn').classList.add('hidden');
+      const container = document.getElementById('item-image-preview-container');
+      if (container) {
+        container.classList.add('border-warm-gold', 'bg-warm-champagne/40');
+      }
+    }
+
+    function handleDragLeave(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const container = document.getElementById('item-image-preview-container');
+      if (container) {
+        container.classList.remove('border-warm-gold', 'bg-warm-champagne/40');
+      }
+    }
+
+    async function handleDrop(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const container = document.getElementById('item-image-preview-container');
+      if (container) {
+        container.classList.remove('border-warm-gold', 'bg-warm-champagne/40');
+      }
+      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        await processAndAddFiles(e.dataTransfer.files);
+      }
+    }
+
+    async function handleImageUpload(e) {
+      if (e.target.files && e.target.files.length > 0) {
+        await processAndAddFiles(e.target.files);
+        e.target.value = '';
+      }
+    }
+
+    async function processAndAddFiles(fileList) {
+      const files = Array.from(fileList).filter(f => f.type && f.type.startsWith('image/'));
+      if (files.length === 0) return;
+
+      showToast(`Optimizing ${files.length} garment photo${files.length > 1 ? 's' : ''}...`, 'info');
+
+      try {
+        const compressedList = await Promise.all(files.map(f => compressImageFile(f)));
+        const wasEmpty = currentUploadedImages.length === 0;
+
+        currentUploadedImages = currentUploadedImages.concat(compressedList);
+        if (currentUploadedImages.length > 10) {
+          currentUploadedImages = currentUploadedImages.slice(0, 10);
+          showToast('Wardrobe supports up to 10 photos per garment.', 'info');
+        }
+
+        if (wasEmpty) {
+          primaryCoverIndex = 0;
+          activePreviewIndex = 0;
+        } else {
+          activePreviewIndex = currentUploadedImages.length - 1;
+        }
+
+        renderItemFormGallery();
+        showToast(`Added ${compressedList.length} photo${compressedList.length > 1 ? 's' : ''} to garment!`, 'success');
+      } catch (err) {
+        console.error("Image processing error", err);
+        showToast('Failed to optimize image, please try another.', 'error');
+      }
+    }
+
+    function renderItemFormGallery() {
+      const previewImg = document.getElementById('item-image-preview');
+      const placeholder = document.getElementById('item-image-placeholder');
+      const removeBtn = document.getElementById('remove-image-btn');
+      const coverBadge = document.getElementById('cover-photo-badge');
+      const galleryStrip = document.getElementById('item-gallery-strip');
+      const thumbnailsContainer = document.getElementById('item-gallery-thumbnails');
+      const countBadge = document.getElementById('item-gallery-count-badge');
+      const countNum = document.getElementById('item-photo-count-num');
+
+      if (!currentUploadedImages || currentUploadedImages.length === 0) {
+        previewImg.src = '';
+        previewImg.classList.add('hidden');
+        placeholder.classList.remove('hidden');
+        removeBtn.classList.add('hidden');
+        coverBadge.classList.add('hidden');
+        galleryStrip.classList.add('hidden');
+        if (countBadge) countBadge.classList.add('hidden');
+        return;
+      }
+
+      if (activePreviewIndex < 0 || activePreviewIndex >= currentUploadedImages.length) {
+        activePreviewIndex = 0;
+      }
+      if (primaryCoverIndex < 0 || primaryCoverIndex >= currentUploadedImages.length) {
+        primaryCoverIndex = 0;
+      }
+
+      const activeSrc = currentUploadedImages[activePreviewIndex];
+      previewImg.src = activeSrc;
+      previewImg.classList.remove('hidden');
+      placeholder.classList.add('hidden');
+      removeBtn.classList.remove('hidden');
+      galleryStrip.classList.remove('hidden');
+
+      if (countBadge && countNum) {
+        countBadge.classList.remove('hidden');
+        countNum.textContent = currentUploadedImages.length;
+      }
+
+      if (activePreviewIndex === primaryCoverIndex) {
+        coverBadge.classList.remove('hidden');
+      } else {
+        coverBadge.classList.add('hidden');
+      }
+
+      thumbnailsContainer.innerHTML = currentUploadedImages.map((imgSrc, idx) => {
+        const isCover = idx === primaryCoverIndex;
+        const isActive = idx === activePreviewIndex;
+
+        return `
+          <div class="relative group/thumb shrink-0 w-14 h-14 rounded-xl overflow-hidden border-2 cursor-pointer transition-all ${isActive ? 'border-stone-900 shadow-md scale-105' : 'border-stone-200 opacity-75 hover:opacity-100'}" onclick="selectActiveImage(${idx})">
+            <img src="${imgSrc}" class="w-full h-full object-cover">
+            
+            <button type="button" onclick="setPrimaryCover(${idx}, event)" class="absolute top-0.5 left-0.5 w-5 h-5 rounded-full ${isCover ? 'bg-amber-500 text-white' : 'bg-stone-900/60 text-stone-300 hover:text-amber-400'} flex items-center justify-center text-[9px] shadow-sm transition-colors" title="${isCover ? 'Primary Cover Photo' : 'Click to make Primary Cover'}">
+              <i class="fa-solid fa-star"></i>
+            </button>
+
+            <button type="button" onclick="deleteImageAtIndex(${idx}, event)" class="absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center text-[9px] shadow-sm opacity-0 group-hover/thumb:opacity-100 transition-opacity" title="Remove this photo">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            ${isCover ? `
+              <div class="absolute bottom-0 inset-x-0 bg-amber-500/90 text-white text-[8px] font-bold text-center py-0.2 leading-tight">Cover</div>
+            ` : ''}
+          </div>
+        `;
+      }).join('') + `
+        <button type="button" onclick="document.getElementById('item-file-input').click()" class="shrink-0 w-14 h-14 rounded-xl border-2 border-dashed border-stone-300 hover:border-stone-900 bg-stone-50 hover:bg-stone-100 flex flex-col items-center justify-center text-stone-500 hover:text-stone-900 transition-colors text-[10px] font-semibold gap-0.5">
+          <i class="fa-solid fa-plus text-xs text-warm-gold"></i>
+          <span>Add</span>
+        </button>
+      `;
+    }
+
+    function selectActiveImage(idx) {
+      activePreviewIndex = idx;
+      renderItemFormGallery();
+    }
+
+    function setPrimaryCover(idx, e) {
+      if (e) e.stopPropagation();
+      primaryCoverIndex = idx;
+      renderItemFormGallery();
+      showToast('Set as primary cover photo!', 'info');
+    }
+
+    function deleteImageAtIndex(idx, e) {
+      if (e) e.stopPropagation();
+      currentUploadedImages.splice(idx, 1);
+      if (primaryCoverIndex >= currentUploadedImages.length) {
+        primaryCoverIndex = Math.max(0, currentUploadedImages.length - 1);
+      }
+      if (activePreviewIndex >= currentUploadedImages.length) {
+        activePreviewIndex = Math.max(0, currentUploadedImages.length - 1);
+      }
+      renderItemFormGallery();
+      showToast('Photo removed.', 'info');
+    }
+
+    function removeActiveImage(e) {
+      if (e) e.stopPropagation();
+      deleteImageAtIndex(activePreviewIndex, e);
     }
 
     function handleSaveItem(e) {
@@ -2594,6 +2873,15 @@
 
       const existingIndex = userWardrobe.findIndex(i => i.id === id);
 
+      // Arrange images array with primary cover photo at index 0
+      let imagesList = [...currentUploadedImages];
+      if (imagesList.length > 0 && primaryCoverIndex > 0 && primaryCoverIndex < imagesList.length) {
+        const coverImg = imagesList.splice(primaryCoverIndex, 1)[0];
+        imagesList.unshift(coverImg);
+      }
+
+      const primaryCoverImg = imagesList.length > 0 ? imagesList[0] : (existingIndex >= 0 ? userWardrobe[existingIndex].image : '');
+
       const itemPayload = {
         id,
         title,
@@ -2604,7 +2892,8 @@
         season,
         tags,
         price,
-        image: currentUploadedImageBase64 || (existingIndex >= 0 ? userWardrobe[existingIndex].image : ''),
+        image: primaryCoverImg,
+        images: imagesList.length > 0 ? imagesList : (primaryCoverImg ? [primaryCoverImg] : []),
         createdAt: existingIndex >= 0 ? userWardrobe[existingIndex].createdAt : new Date().toISOString(),
         wearDates: existingIndex >= 0 ? userWardrobe[existingIndex].wearDates : []
       };
@@ -2614,7 +2903,7 @@
         showToast(`Updated "${title}"`, 'success');
       } else {
         userWardrobe.unshift(itemPayload);
-        showToast(`Added "${title}" to your wardrobe!`, 'success');
+        showToast(`Added "${title}" with ${imagesList.length || 0} photo${imagesList.length === 1 ? '' : 's'} to your wardrobe!`, 'success');
       }
 
       persistUserData();
@@ -2623,16 +2912,24 @@
     }
 
     // =========================================================================
-    // MODAL 2 LOGIC: GARMENT DETAIL VIEW
+    // MODAL 2 LOGIC: GARMENT DETAIL VIEW & PHOTO CAROUSEL
     // =========================================================================
     let activeDetailItemId = null;
+    let activeDetailImages = [];
+    let activeDetailImgIndex = 0;
 
     function openDetailModal(itemId) {
       const item = userWardrobe.find(i => i.id === itemId);
       if (!item) return;
 
       activeDetailItemId = itemId;
-      document.getElementById('detail-image').src = item.image || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="%23948D80" stroke-width="1.5"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/></svg>';
+      activeDetailImages = (Array.isArray(item.images) && item.images.length > 0)
+        ? item.images
+        : (item.image ? [item.image] : []);
+      activeDetailImgIndex = 0;
+
+      renderDetailGallery();
+
       document.getElementById('detail-title').textContent = item.title;
       document.getElementById('detail-brand').textContent = item.brand || item.category;
       document.getElementById('detail-category-badge').textContent = item.category;
@@ -2700,6 +2997,77 @@
       document.getElementById('modal-detail').classList.add('flex');
     }
 
+    function renderDetailGallery() {
+      const imgElem = document.getElementById('detail-image');
+      const prevBtn = document.getElementById('detail-prev-img-btn');
+      const nextBtn = document.getElementById('detail-next-img-btn');
+      const counterBadge = document.getElementById('detail-img-counter');
+      const counterText = document.getElementById('detail-img-counter-text');
+      const galleryBar = document.getElementById('detail-gallery-bar');
+      const thumbnailsContainer = document.getElementById('detail-gallery-thumbnails');
+
+      const fallbackSvg = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="%23948D80" stroke-width="1.5"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/></svg>';
+
+      if (activeDetailImages.length === 0) {
+        imgElem.src = fallbackSvg;
+        if (prevBtn) prevBtn.classList.add('hidden');
+        if (nextBtn) nextBtn.classList.add('hidden');
+        if (counterBadge) counterBadge.classList.add('hidden');
+        if (galleryBar) galleryBar.classList.add('hidden');
+        return;
+      }
+
+      if (activeDetailImgIndex < 0 || activeDetailImgIndex >= activeDetailImages.length) {
+        activeDetailImgIndex = 0;
+      }
+
+      imgElem.src = activeDetailImages[activeDetailImgIndex];
+
+      if (activeDetailImages.length > 1) {
+        if (prevBtn) prevBtn.classList.remove('hidden');
+        if (nextBtn) nextBtn.classList.remove('hidden');
+        if (counterBadge) {
+          counterBadge.classList.remove('hidden');
+          counterText.textContent = `${activeDetailImgIndex + 1} / ${activeDetailImages.length}`;
+        }
+        if (galleryBar && thumbnailsContainer) {
+          galleryBar.classList.remove('hidden');
+          thumbnailsContainer.innerHTML = activeDetailImages.map((src, idx) => {
+            const isActive = idx === activeDetailImgIndex;
+            return `
+              <button type="button" onclick="setDetailImageIndex(${idx})" class="w-12 h-12 rounded-xl overflow-hidden border-2 transition-all shrink-0 ${isActive ? 'border-stone-900 ring-2 ring-warm-gold/40 scale-105 shadow-sm' : 'border-stone-200 opacity-60 hover:opacity-100'}">
+                <img src="${src}" class="w-full h-full object-cover">
+              </button>
+            `;
+          }).join('');
+        }
+      } else {
+        if (prevBtn) prevBtn.classList.add('hidden');
+        if (nextBtn) nextBtn.classList.add('hidden');
+        if (counterBadge) counterBadge.classList.add('hidden');
+        if (galleryBar) galleryBar.classList.add('hidden');
+      }
+    }
+
+    function prevDetailImage(e) {
+      if (e) e.stopPropagation();
+      if (activeDetailImages.length <= 1) return;
+      activeDetailImgIndex = (activeDetailImgIndex - 1 + activeDetailImages.length) % activeDetailImages.length;
+      renderDetailGallery();
+    }
+
+    function nextDetailImage(e) {
+      if (e) e.stopPropagation();
+      if (activeDetailImages.length <= 1) return;
+      activeDetailImgIndex = (activeDetailImgIndex + 1) % activeDetailImages.length;
+      renderDetailGallery();
+    }
+
+    function setDetailImageIndex(idx) {
+      activeDetailImgIndex = idx;
+      renderDetailGallery();
+    }
+
     function closeDetailModal() {
       document.getElementById('modal-detail').classList.add('hidden');
       document.getElementById('modal-detail').classList.remove('flex');
@@ -2764,14 +3132,208 @@
       document.getElementById('item-tags').value = preset.tags;
       document.getElementById('item-price').value = preset.price;
 
-      currentUploadedImageBase64 = preset.image;
-      document.getElementById('item-image-preview').src = preset.image;
-      document.getElementById('item-image-preview').classList.remove('hidden');
-      document.getElementById('item-image-placeholder').classList.add('hidden');
-      document.getElementById('remove-image-btn').classList.remove('hidden');
+      currentUploadedImages = [preset.image];
+      activePreviewIndex = 0;
+      primaryCoverIndex = 0;
+      renderItemFormGallery();
 
       closePresetPicker();
       showToast(`Selected "${preset.title}" preset!`, 'success');
+    }
+
+    // =========================================================================
+    // MODAL 6 LOGIC: BATCH MULTI-GARMENT PHOTO IMPORTER
+    // =========================================================================
+    let pendingBatchItems = [];
+
+    function openBatchImportModal() {
+      pendingBatchItems = [];
+      renderBatchDrafts();
+      document.getElementById('modal-batch-import').classList.remove('hidden');
+      document.getElementById('modal-batch-import').classList.add('flex');
+    }
+
+    function closeBatchImportModal() {
+      document.getElementById('modal-batch-import').classList.add('hidden');
+      document.getElementById('modal-batch-import').classList.remove('flex');
+      pendingBatchItems = [];
+    }
+
+    function handleBatchDragOver(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const dropzone = document.getElementById('batch-dropzone');
+      if (dropzone) dropzone.classList.add('border-warm-gold', 'bg-warm-champagne/40');
+    }
+
+    function handleBatchDragLeave(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const dropzone = document.getElementById('batch-dropzone');
+      if (dropzone) dropzone.classList.remove('border-warm-gold', 'bg-warm-champagne/40');
+    }
+
+    async function handleBatchDrop(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const dropzone = document.getElementById('batch-dropzone');
+      if (dropzone) dropzone.classList.remove('border-warm-gold', 'bg-warm-champagne/40');
+      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        await processBatchFiles(e.dataTransfer.files);
+      }
+    }
+
+    async function handleBatchFiles(e) {
+      if (e.target.files && e.target.files.length > 0) {
+        await processBatchFiles(e.target.files);
+        e.target.value = '';
+      }
+    }
+
+    async function processBatchFiles(fileList) {
+      const files = Array.from(fileList).filter(f => f.type && f.type.startsWith('image/'));
+      if (files.length === 0) return;
+
+      showToast(`Processing & compressing ${files.length} garment photos...`, 'info');
+
+      try {
+        const compressedList = await Promise.all(files.map(f => compressImageFile(f)));
+        
+        compressedList.forEach((dataUrl, idx) => {
+          const file = files[idx];
+          let rawName = file.name ? file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ') : '';
+          if (!rawName || rawName.length < 2) rawName = `Wardrobe Item ${pendingBatchItems.length + 1}`;
+
+          let guessedCategory = 'tops';
+          const lower = rawName.toLowerCase();
+          if (lower.includes('pant') || lower.includes('jean') || lower.includes('trouser') || lower.includes('short') || lower.includes('skirt')) {
+            guessedCategory = 'bottoms';
+          } else if (lower.includes('jacket') || lower.includes('blazer') || lower.includes('coat') || lower.includes('outerwear') || lower.includes('cardigan')) {
+            guessedCategory = 'outerwear';
+          } else if (lower.includes('shoe') || lower.includes('boot') || lower.includes('sneaker') || lower.includes('heel') || lower.includes('loafer')) {
+            guessedCategory = 'shoes';
+          } else if (lower.includes('bag') || lower.includes('glass') || lower.includes('hat') || lower.includes('belt') || lower.includes('scarf') || lower.includes('accessory')) {
+            guessedCategory = 'accessories';
+          } else if (lower.includes('kurta') || lower.includes('sari') || lower.includes('ethnic') || lower.includes('lehenga')) {
+            guessedCategory = 'ethnic';
+          }
+
+          pendingBatchItems.push({
+            id: 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+            title: rawName,
+            category: guessedCategory,
+            brand: '',
+            colorHex: '#1c1917',
+            colorName: 'Custom',
+            season: 'All Seasons',
+            price: '',
+            image: dataUrl,
+            images: [dataUrl]
+          });
+        });
+
+        renderBatchDrafts();
+        showToast(`${pendingBatchItems.length} garment drafts ready for import!`, 'success');
+      } catch (err) {
+        console.error("Batch processing error", err);
+        showToast('Error processing some photos, please try again.', 'error');
+      }
+    }
+
+    function renderBatchDrafts() {
+      const container = document.getElementById('batch-items-container');
+      const grid = document.getElementById('batch-items-grid');
+      const countTitle = document.getElementById('batch-count-title');
+      const submitBtn = document.getElementById('batch-import-submit-btn');
+
+      if (pendingBatchItems.length === 0) {
+        container.classList.add('hidden');
+        submitBtn.disabled = true;
+        return;
+      }
+
+      container.classList.remove('hidden');
+      submitBtn.disabled = false;
+      countTitle.textContent = `Pending Garments (${pendingBatchItems.length})`;
+
+      grid.innerHTML = pendingBatchItems.map((item, idx) => {
+        return `
+          <div class="flex items-center gap-3 p-3 bg-stone-50 rounded-2xl border border-stone-200">
+            <div class="w-16 h-16 rounded-xl bg-white overflow-hidden shrink-0 border border-stone-200 p-1 flex items-center justify-center">
+              <img src="${item.image}" class="w-full h-full object-contain">
+            </div>
+            
+            <div class="flex-1 min-w-0 space-y-1.5">
+              <input type="text" value="${escapeHtml(item.title)}" oninput="updateBatchItemField(${idx}, 'title', this.value)" placeholder="Garment name..." class="w-full px-2.5 py-1 text-xs bg-white border border-stone-200 rounded-lg focus:outline-none focus:border-stone-900 font-semibold text-stone-800">
+              
+              <div class="flex items-center gap-2">
+                <select onchange="updateBatchItemField(${idx}, 'category', this.value)" class="text-[11px] bg-white border border-stone-200 rounded-lg px-2 py-1 text-stone-700 focus:outline-none">
+                  <option value="tops" ${item.category === 'tops' ? 'selected' : ''}>Tops</option>
+                  <option value="bottoms" ${item.category === 'bottoms' ? 'selected' : ''}>Bottoms</option>
+                  <option value="outerwear" ${item.category === 'outerwear' ? 'selected' : ''}>Outerwear</option>
+                  <option value="shoes" ${item.category === 'shoes' ? 'selected' : ''}>Shoes</option>
+                  <option value="accessories" ${item.category === 'accessories' ? 'selected' : ''}>Accessories</option>
+                  <option value="ethnic" ${item.category === 'ethnic' ? 'selected' : ''}>Ethnic</option>
+                </select>
+
+                <select onchange="updateBatchItemField(${idx}, 'season', this.value)" class="text-[11px] bg-white border border-stone-200 rounded-lg px-2 py-1 text-stone-700 focus:outline-none">
+                  <option value="All Seasons" ${item.season === 'All Seasons' ? 'selected' : ''}>All Seasons</option>
+                  <option value="Spring" ${item.season === 'Spring' ? 'selected' : ''}>Spring</option>
+                  <option value="Summer" ${item.season === 'Summer' ? 'selected' : ''}>Summer</option>
+                  <option value="Autumn" ${item.season === 'Autumn' ? 'selected' : ''}>Autumn</option>
+                  <option value="Winter" ${item.season === 'Winter' ? 'selected' : ''}>Winter</option>
+                </select>
+              </div>
+            </div>
+
+            <button type="button" onclick="removeBatchDraftItem(${idx})" class="w-7 h-7 rounded-lg bg-white hover:bg-rose-50 border border-stone-200 hover:border-rose-300 text-stone-400 hover:text-rose-600 flex items-center justify-center text-xs transition-colors shrink-0" title="Remove from batch">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updateBatchItemField(idx, field, value) {
+      if (pendingBatchItems[idx]) {
+        pendingBatchItems[idx][field] = value;
+      }
+    }
+
+    function removeBatchDraftItem(idx) {
+      pendingBatchItems.splice(idx, 1);
+      renderBatchDrafts();
+      showToast('Draft item removed.', 'info');
+    }
+
+    function saveBatchGarments() {
+      if (pendingBatchItems.length === 0) return;
+
+      const newGarments = pendingBatchItems.map(item => {
+        return {
+          id: item.id || ('item_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6)),
+          title: item.title.trim() || 'Untitled Garment',
+          category: item.category || 'tops',
+          brand: item.brand || '',
+          colorHex: item.colorHex || '#1c1917',
+          colorName: item.colorName || 'Custom',
+          season: item.season || 'All Seasons',
+          tags: '',
+          price: parseFloat(item.price) || 0,
+          image: item.image,
+          images: item.images || [item.image],
+          createdAt: new Date().toISOString(),
+          wearDates: []
+        };
+      });
+
+      userWardrobe = newGarments.concat(userWardrobe);
+      persistUserData();
+      
+      const count = newGarments.length;
+      closeBatchImportModal();
+      renderActiveView();
+      showToast(`✨ Successfully imported ${count} garment${count > 1 ? 's' : ''} to your wardrobe!`, 'success');
     }
 
     // =========================================================================
@@ -3354,7 +3916,7 @@
     function openMobileConnectModal() {
       const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
       const networkUrl = isLocal 
-        ? 'https://4e688bb4eace96.lhr.life/index.html'
+        ? 'https://ad543b18eeaea1.lhr.life/index.html'
         : window.location.href;
 
       const input = document.getElementById('mobile-url-input');
@@ -3485,6 +4047,17 @@
         closeMobileConnectModal();
         closeAccountModal();
         closeUserDropdown();
+        closeBatchImportModal();
+      } else if (e.key === 'ArrowLeft') {
+        const detailModal = document.getElementById('modal-detail');
+        if (detailModal && !detailModal.classList.contains('hidden')) {
+          prevDetailImage();
+        }
+      } else if (e.key === 'ArrowRight') {
+        const detailModal = document.getElementById('modal-detail');
+        if (detailModal && !detailModal.classList.contains('hidden')) {
+          nextDetailImage();
+        }
       }
     });
   </script>
