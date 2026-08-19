@@ -1718,18 +1718,30 @@
 
       <!-- Step 2: Enter Code & New Password -->
       <div id="forgot-step-2" class="hidden p-6 space-y-4">
-        <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-start gap-2.5">
-          <i class="fa-solid fa-circle-check text-emerald-600 mt-0.5 text-sm shrink-0"></i>
-          <div>
-            <p class="text-xs font-bold text-emerald-900">Code Generated for <span id="forgot-confirmed-email" class="font-mono"></span></p>
-            <p class="text-[11px] text-emerald-700 mt-0.5">Verification code: <strong id="forgot-display-code" class="font-mono text-emerald-900 font-bold bg-emerald-100/80 px-1.5 py-0.5 rounded"></strong> (Valid for 15 mins)</p>
+        <div class="p-3.5 bg-stone-50 border border-stone-200 rounded-2xl flex items-start gap-3">
+          <div class="w-8 h-8 rounded-xl bg-amber-500/10 text-warm-gold flex items-center justify-center text-sm shrink-0 mt-0.5 shadow-xs">
+            <i class="fa-solid fa-envelope"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-bold text-stone-900">Check Your Gmail Inbox</p>
+            <p class="text-[11px] text-stone-600 mt-0.5 leading-relaxed">
+              A 6-digit verification code has been dispatched to <strong id="forgot-confirmed-email" class="text-stone-900 font-mono font-bold"></strong>.
+            </p>
+            <p class="text-[10px] text-stone-400 mt-1 italic">
+              <i class="fa-regular fa-clock mr-1"></i> Valid for 15 minutes. Check Spam or Updates folder if needed.
+            </p>
           </div>
         </div>
 
         <div>
-          <label for="forgot-code" class="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1.5">6-Digit Verification Code</label>
-          <input type="text" id="forgot-code" maxlength="6" placeholder="123456"
-            class="w-full text-center tracking-[0.4em] font-mono text-lg font-bold py-2.5 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-colors">
+          <div class="flex items-center justify-between mb-1.5">
+            <label for="forgot-code" class="block text-xs font-semibold uppercase tracking-wider text-stone-600">6-Digit Verification Code</label>
+            <button type="button" onclick="handleForgotPasswordStep1()" class="text-[11px] font-semibold text-warm-gold hover:text-stone-900 transition-colors">
+              Resend Code
+            </button>
+          </div>
+          <input type="text" id="forgot-code" maxlength="6" placeholder="Enter 6-digit code" autocomplete="one-time-code"
+            class="w-full text-center tracking-[0.3em] font-mono text-lg font-bold py-2.5 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-colors">
         </div>
 
         <div>
@@ -5174,12 +5186,17 @@
         }
 
         activeForgotEmail = emailInput;
-        const code = res.data && res.data.code ? res.data.code : '123456';
-        document.getElementById('forgot-confirmed-email').textContent = emailInput;
-        document.getElementById('forgot-display-code').textContent = code;
-        document.getElementById('forgot-code').value = code; // Auto-prefill for convenience
+        const masked = (res.data && res.data.maskedEmail) ? res.data.maskedEmail : emailInput;
+        document.getElementById('forgot-confirmed-email').textContent = masked;
+        
+        // Zero-knowledge client: ensure code input is completely empty!
+        const codeInput = document.getElementById('forgot-code');
+        if (codeInput) {
+          codeInput.value = '';
+          setTimeout(() => codeInput.focus(), 150);
+        }
 
-        showToast(`✨ Verification code generated for ${emailInput}`, 'success');
+        showToast(`✨ Verification code sent to ${masked}! Please check your Gmail.`, 'success');
         switchForgotStep(2);
       } catch (err) {
         console.error('Forgot password step 1 error:', err);
