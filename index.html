@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html lang="en" class="h-full bg-stone-50 text-stone-900 antialiased">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>ATELIER — Digital Wardrobe & Daily Outfit Journal</title>
-  <meta name="description" content="A modern, minimalist boutique digital wardrobe inventory and daily outfit logger. Catalog your garments, log your OOTD, track wear frequency, and curate your personal style.">
+  <meta name="description"
+    content="A modern, minimalist boutique digital wardrobe inventory and daily outfit logger. Catalog your garments, log your OOTD, track wear frequency, and curate your personal style.">
 
   <!-- Google Fonts: Playfair Display (Editorial Serif) & Plus Jakarta Sans (Clean Modern Sans) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
 
   <!-- Font Awesome 6.5.1 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -72,13 +76,16 @@
       width: 6px;
       height: 6px;
     }
+
     ::-webkit-scrollbar-track {
       background: transparent;
     }
+
     ::-webkit-scrollbar-thumb {
       background: #D9D5CC;
       border-radius: 9999px;
     }
+
     ::-webkit-scrollbar-thumb:hover {
       background: #B8B2A6;
     }
@@ -94,6 +101,7 @@
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
     }
+
     .glass-panel {
       background: rgba(255, 255, 255, 0.92);
       backdrop-filter: blur(16px);
@@ -104,6 +112,7 @@
     .no-scrollbar::-webkit-scrollbar {
       display: none;
     }
+
     .no-scrollbar {
       -ms-overflow-style: none;
       scrollbar-width: none;
@@ -113,68 +122,95 @@
     .item-card-image {
       transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     }
+
     .item-card:hover .item-card-image {
       transform: scale(1.05);
     }
   </style>
 </head>
+
 <body class="h-full flex flex-col font-sans bg-stone-50 text-stone-900 selection:bg-stone-900 selection:text-white">
 
   <!-- ========================================================================= -->
   <!-- TOAST NOTIFICATION CONTAINER -->
   <!-- ========================================================================= -->
-  <div id="toast-container" class="fixed top-5 right-5 z-[100] flex flex-col gap-2.5 pointer-events-none max-w-sm w-full px-4 sm:px-0"></div>
+  <div id="toast-container"
+    class="fixed top-5 right-5 z-[100] flex flex-col gap-2.5 pointer-events-none max-w-sm w-full px-4 sm:px-0"></div>
 
   <!-- ========================================================================= -->
   <!-- AUTHENTICATION SCREEN (Shown when logged out) -->
   <!-- ========================================================================= -->
-  <section id="auth-screen" class="hidden min-h-screen w-full flex-col justify-center items-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden bg-gradient-to-b from-stone-100 via-stone-50 to-stone-100">
+  <section id="auth-screen"
+    class="hidden min-h-screen w-full flex-col justify-center items-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden bg-gradient-to-b from-stone-100 via-stone-50 to-stone-100">
     <!-- Ambient aesthetic background shapes -->
     <div class="absolute -top-32 -left-32 w-96 h-96 bg-stone-200/60 rounded-full blur-3xl pointer-events-none"></div>
-    <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-warm-champagne/80 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-warm-champagne/80 rounded-full blur-3xl pointer-events-none">
+    </div>
 
     <div class="max-w-md w-full relative z-10">
       <!-- Brand Logo & Header -->
       <div class="text-center mb-8">
-        <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-stone-900 text-stone-50 mb-4 shadow-lg shadow-stone-900/10">
+        <div
+          class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-stone-900 text-stone-50 mb-4 shadow-lg shadow-stone-900/10">
           <i class="fa-solid fa-vest-patches text-2xl text-warm-gold"></i>
         </div>
         <h1 class="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-stone-900">ATELIER</h1>
-        <p class="mt-1.5 text-xs font-semibold uppercase tracking-widest text-warm-gold">Digital Wardrobe & Outfit Journal</p>
-        <p class="mt-3 text-sm text-stone-500 max-w-xs mx-auto">Catalog your closet, style daily ensembles, and master your personal wardrobe rhythm.</p>
+        <p class="mt-1.5 text-xs font-semibold uppercase tracking-widest text-warm-gold">Digital Wardrobe & Outfit
+          Journal</p>
+        <p class="mt-3 text-sm text-stone-500 max-w-xs mx-auto">Catalog your closet, style daily ensembles, and master
+          your personal wardrobe rhythm.</p>
       </div>
 
       <!-- Auth Form Card -->
       <div class="bg-white/90 glass-panel border border-stone-200/80 rounded-3xl p-6 sm:p-8 shadow-boutique">
         <!-- Auth Tabs (Sign In / Sign Up) -->
         <div class="flex p-1 bg-stone-100/90 rounded-2xl mb-6 border border-stone-200/50">
-          <button id="auth-tab-signin" type="button" onclick="switchAuthTab('signin')" class="flex-1 py-2.5 text-xs sm:text-sm font-semibold rounded-xl transition-all shadow-sm bg-white text-stone-900">Sign In</button>
-          <button id="auth-tab-signup" type="button" onclick="switchAuthTab('signup')" class="flex-1 py-2.5 text-xs sm:text-sm font-medium rounded-xl transition-all text-stone-500 hover:text-stone-900">Create Account</button>
+          <button id="auth-tab-signin" type="button" onclick="switchAuthTab('signin')"
+            class="flex-1 py-2.5 text-xs sm:text-sm font-semibold rounded-xl transition-all shadow-sm bg-white text-stone-900">Sign
+            In</button>
+          <button id="auth-tab-signup" type="button" onclick="switchAuthTab('signup')"
+            class="flex-1 py-2.5 text-xs sm:text-sm font-medium rounded-xl transition-all text-stone-500 hover:text-stone-900">Create
+            Account</button>
+        </div>
+
+        <!-- Central SQLite Database Status Indicator -->
+        <div id="auth-server-status" class="mb-5 flex items-center justify-between px-3.5 py-2.5 bg-stone-50/90 rounded-2xl border border-stone-200/80 text-xs">
+          <span class="font-medium text-stone-600 flex items-center gap-1.5">
+            <i class="fa-solid fa-server text-warm-gold text-xs"></i> SQLite Database:
+          </span>
+          <span id="db-status-pill" class="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 bg-emerald-100/80 px-2.5 py-0.5 rounded-full">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Connected (Port 8000)
+          </span>
         </div>
 
         <!-- Saved Accounts on Device (Dynamically Populated) -->
-        <div id="auth-saved-accounts" class="hidden mb-6 p-3.5 bg-stone-50/90 rounded-2xl border border-stone-200/70"></div>
+        <div id="auth-saved-accounts" class="hidden mb-6 p-3.5 bg-stone-50/90 rounded-2xl border border-stone-200/70">
+        </div>
 
         <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-4">
           <!-- Full Name (Only on Sign Up) -->
           <div id="auth-name-group" class="hidden">
-            <label for="auth-name" class="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1.5">Full Name</label>
+            <label for="auth-name"
+              class="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1.5">Full Name</label>
             <div class="relative">
               <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-stone-400">
                 <i class="fa-regular fa-user text-sm"></i>
               </span>
-              <input type="text" id="auth-name" autocomplete="name" placeholder="Sophia Vance" class="w-full pl-10 pr-4 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-colors">
+              <input type="text" id="auth-name" autocomplete="name" placeholder="Sophia Vance"
+                class="w-full pl-10 pr-4 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-colors">
             </div>
           </div>
 
           <!-- Email -->
           <div>
-            <label for="auth-email" class="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1.5">Email Address</label>
+            <label for="auth-email"
+              class="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1.5">Email Address</label>
             <div class="relative">
               <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-stone-400">
                 <i class="fa-regular fa-envelope text-sm"></i>
               </span>
-              <input type="email" id="auth-email" required autocomplete="email" placeholder="sophia@example.com" class="w-full pl-10 pr-4 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-colors">
+              <input type="email" id="auth-email" required autocomplete="email" placeholder="sophia@example.com"
+                class="w-full pl-10 pr-4 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-colors">
             </div>
             <p id="auth-email-error" class="hidden text-xs text-rose-500 mt-1 font-medium"></p>
           </div>
@@ -182,15 +218,21 @@
           <!-- Password -->
           <div>
             <div class="flex items-center justify-between mb-1.5">
-              <label for="auth-password" class="block text-xs font-semibold uppercase tracking-wider text-stone-600">Password</label>
-              <span id="auth-forgot-hint" class="text-xs text-stone-400 cursor-pointer hover:text-stone-600" onclick="showToast('Local account: Passwords are saved on your device storage.', 'info')">Need help?</span>
+              <label for="auth-password"
+                class="block text-xs font-semibold uppercase tracking-wider text-stone-600">Password</label>
+              <span id="auth-forgot-hint" class="text-xs text-stone-400 cursor-pointer hover:text-stone-600"
+                onclick="showToast('Local account: Passwords are saved on your device storage.', 'info')">Need
+                help?</span>
             </div>
             <div class="relative">
               <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-stone-400">
                 <i class="fa-solid fa-lock text-sm"></i>
               </span>
-              <input type="password" id="auth-password" required autocomplete="current-password" placeholder="••••••••" minlength="6" class="w-full pl-10 pr-10 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-colors">
-              <button type="button" onclick="togglePasswordVisibility('auth-password')" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-stone-400 hover:text-stone-600">
+              <input type="password" id="auth-password" required autocomplete="current-password" placeholder="••••••••"
+                minlength="6"
+                class="w-full pl-10 pr-10 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-colors">
+              <button type="button" onclick="togglePasswordVisibility('auth-password')"
+                class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-stone-400 hover:text-stone-600">
                 <i class="fa-regular fa-eye text-sm" id="auth-password-eye"></i>
               </button>
             </div>
@@ -198,7 +240,8 @@
           </div>
 
           <!-- Submit Button -->
-          <button type="submit" id="auth-submit-btn" class="w-full mt-2 py-3 px-4 bg-stone-900 hover:bg-stone-800 text-stone-50 rounded-xl font-semibold text-sm shadow-md transition-all flex items-center justify-center gap-2 group active:scale-[0.99]">
+          <button type="submit" id="auth-submit-btn"
+            class="w-full mt-2 py-3 px-4 bg-stone-900 hover:bg-stone-800 text-stone-50 rounded-xl font-semibold text-sm shadow-md transition-all flex items-center justify-center gap-2 group active:scale-[0.99]">
             <span id="auth-submit-text">Sign In to Wardrobe</span>
             <i class="fa-solid fa-arrow-right text-xs transition-transform group-hover:translate-x-1"></i>
           </button>
@@ -206,16 +249,21 @@
 
         <!-- Divider -->
         <div class="relative my-6">
-          <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-stone-200"></div></div>
-          <div class="relative flex justify-center text-xs uppercase"><span class="bg-white px-3 text-stone-400 font-medium tracking-wider">or test drive</span></div>
+          <div class="absolute inset-0 flex items-center">
+            <div class="w-full border-t border-stone-200"></div>
+          </div>
+          <div class="relative flex justify-center text-xs uppercase"><span
+              class="bg-white px-3 text-stone-400 font-medium tracking-wider">or test drive</span></div>
         </div>
 
         <!-- Quick Demo Login Button -->
-        <button type="button" onclick="loginWithDemoAccount()" class="w-full py-2.5 px-4 bg-warm-champagne hover:bg-stone-200/70 border border-warm-gold/30 text-stone-800 rounded-xl font-semibold text-xs tracking-wide uppercase transition-all flex items-center justify-center gap-2 shadow-sm">
+        <button type="button" onclick="loginWithDemoAccount()"
+          class="w-full py-2.5 px-4 bg-warm-champagne hover:bg-stone-200/70 border border-warm-gold/30 text-stone-800 rounded-xl font-semibold text-xs tracking-wide uppercase transition-all flex items-center justify-center gap-2 shadow-sm">
           <i class="fa-solid fa-wand-magic-sparkles text-warm-gold text-sm"></i>
           <span>Launch with Curated Demo Closet</span>
         </button>
-        <p class="text-[11px] text-center text-stone-400 mt-2">Includes 12 pre-curated wardrobe garments and logged weekly outfits.</p>
+        <p class="text-[11px] text-center text-stone-400 mt-2">Includes 12 pre-curated wardrobe garments and logged
+          weekly outfits.</p>
       </div>
 
       <!-- Security / Local storage privacy notice -->
@@ -232,12 +280,12 @@
   <!-- MAIN APP CONTAINER (Shown when logged in) -->
   <!-- ========================================================================= -->
   <div id="main-app" class="hidden flex-1 flex flex-col min-h-screen">
-    
+
     <!-- Top Sticky Header -->
     <header class="sticky top-0 z-30 bg-white/90 glass-panel border-b border-stone-200/80 transition-all">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16 sm:h-20">
-          
+
           <!-- Left: Brand Logo & Editorial Title -->
           <div class="flex items-center gap-3 cursor-pointer" onclick="switchView('wardrobe')">
             <div class="w-10 h-10 rounded-xl bg-stone-900 text-stone-50 flex items-center justify-center shadow-md">
@@ -246,28 +294,37 @@
             <div>
               <div class="flex items-center gap-2">
                 <span class="font-serif font-bold text-lg sm:text-xl tracking-tight text-stone-900">ATELIER</span>
-                <span class="hidden sm:inline-block px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-stone-100 text-stone-600 rounded-full border border-stone-200">v2.4 Pro</span>
+                <span
+                  class="hidden sm:inline-block px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-stone-100 text-stone-600 rounded-full border border-stone-200">v2.4
+                  Pro</span>
               </div>
-              <p class="text-[10px] sm:text-xs text-stone-500 font-medium tracking-wide uppercase">Digital Wardrobe Studio</p>
+              <p class="text-[10px] sm:text-xs text-stone-500 font-medium tracking-wide uppercase">Digital Wardrobe
+                Studio</p>
             </div>
           </div>
 
           <!-- Center: Desktop Navigation Tabs -->
-          <nav class="hidden md:flex items-center p-1 bg-stone-100/80 rounded-2xl border border-stone-200/60 shadow-inner">
-            <button onclick="switchView('wardrobe')" id="nav-tab-wardrobe" class="nav-tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-white text-stone-900 shadow-sm">
+          <nav
+            class="hidden md:flex items-center p-1 bg-stone-100/80 rounded-2xl border border-stone-200/60 shadow-inner">
+            <button onclick="switchView('wardrobe')" id="nav-tab-wardrobe"
+              class="nav-tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-white text-stone-900 shadow-sm">
               <i class="fa-solid fa-shirt"></i>
               <span>Wardrobe</span>
-              <span id="nav-count-wardrobe" class="px-1.5 py-0.2 text-[10px] font-bold bg-stone-900 text-stone-50 rounded-full">0</span>
+              <span id="nav-count-wardrobe"
+                class="px-1.5 py-0.2 text-[10px] font-bold bg-stone-900 text-stone-50 rounded-full">0</span>
             </button>
-            <button onclick="switchView('logger')" id="nav-tab-logger" class="nav-tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium text-stone-500 hover:text-stone-900 transition-all">
+            <button onclick="switchView('logger')" id="nav-tab-logger"
+              class="nav-tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium text-stone-500 hover:text-stone-900 transition-all">
               <i class="fa-solid fa-calendar-check"></i>
               <span>Daily OOTD</span>
             </button>
-            <button onclick="switchView('calendar')" id="nav-tab-calendar" class="nav-tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium text-stone-500 hover:text-stone-900 transition-all">
+            <button onclick="switchView('calendar')" id="nav-tab-calendar"
+              class="nav-tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium text-stone-500 hover:text-stone-900 transition-all">
               <i class="fa-regular fa-calendar-days"></i>
               <span>Monthly Calendar</span>
             </button>
-            <button onclick="switchView('analytics')" id="nav-tab-analytics" class="nav-tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium text-stone-500 hover:text-stone-900 transition-all">
+            <button onclick="switchView('analytics')" id="nav-tab-analytics"
+              class="nav-tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium text-stone-500 hover:text-stone-900 transition-all">
               <i class="fa-solid fa-chart-pie"></i>
               <span>Closet Insights</span>
             </button>
@@ -276,67 +333,81 @@
           <!-- Right: Quick Action Buttons & User Profile Menu -->
           <div class="flex items-center gap-2.5 sm:gap-3">
             <!-- Add Garment Action Button -->
-            <button onclick="openAddItemModal()" class="hidden sm:flex items-center gap-2 py-2 px-3.5 bg-stone-900 hover:bg-stone-800 text-stone-50 rounded-xl text-xs font-semibold shadow-sm transition-all active:scale-95">
+            <button onclick="openAddItemModal()"
+              class="hidden sm:flex items-center gap-2 py-2 px-3.5 bg-stone-900 hover:bg-stone-800 text-stone-50 rounded-xl text-xs font-semibold shadow-sm transition-all active:scale-95">
               <i class="fa-solid fa-plus text-warm-gold"></i>
               <span>Add Clothing</span>
             </button>
 
             <!-- Batch Import Multi-Garments Button -->
-            <button onclick="openBatchImportModal()" class="hidden md:flex items-center gap-1.5 py-2 px-3 bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-200/80 rounded-xl text-xs font-semibold shadow-sm transition-all active:scale-95" title="Upload multiple clothing photos at once">
+            <button onclick="openBatchImportModal()"
+              class="hidden md:flex items-center gap-1.5 py-2 px-3 bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-200/80 rounded-xl text-xs font-semibold shadow-sm transition-all active:scale-95"
+              title="Upload multiple clothing photos at once">
               <i class="fa-solid fa-layer-group text-warm-gold text-xs"></i>
               <span>Batch Import</span>
             </button>
 
             <!-- Quick Log Today Button -->
-            <button onclick="quickLogToday()" class="flex items-center gap-1.5 py-2 px-3 bg-warm-champagne hover:bg-stone-200/80 border border-warm-gold/40 text-stone-800 rounded-xl text-xs font-semibold shadow-sm transition-all active:scale-95">
+            <button onclick="quickLogToday()"
+              class="flex items-center gap-1.5 py-2 px-3 bg-warm-champagne hover:bg-stone-200/80 border border-warm-gold/40 text-stone-800 rounded-xl text-xs font-semibold shadow-sm transition-all active:scale-95">
               <i class="fa-solid fa-wand-magic-sparkles text-warm-gold text-xs"></i>
               <span class="hidden xs:inline">Log</span> <span>OOTD</span>
             </button>
 
             <!-- Mobile Phone Connect Button -->
-            <button onclick="openMobileConnectModal()" class="flex items-center gap-1.5 py-2 px-3 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-xs font-semibold border border-stone-200 transition-all active:scale-95" title="Connect / Open on Phone">
+            <button onclick="openMobileConnectModal()"
+              class="flex items-center gap-1.5 py-2 px-3 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-xs font-semibold border border-stone-200 transition-all active:scale-95"
+              title="Connect / Open on Phone">
               <i class="fa-solid fa-mobile-screen text-xs text-warm-gold"></i>
               <span class="hidden sm:inline">Phone Link</span>
             </button>
 
             <!-- Profile Menu Dropdown Button -->
             <div class="relative" id="user-menu-container">
-              <button onclick="toggleUserDropdown()" id="user-menu-btn" class="flex items-center gap-2 p-1.5 rounded-xl hover:bg-stone-100 border border-stone-200 transition-colors focus:outline-none">
-                <div id="user-avatar" class="w-8 h-8 rounded-lg bg-stone-800 text-warm-gold flex items-center justify-center font-serif font-bold text-xs uppercase shadow-sm">
+              <button onclick="toggleUserDropdown()" id="user-menu-btn"
+                class="flex items-center gap-2 p-1.5 rounded-xl hover:bg-stone-100 border border-stone-200 transition-colors focus:outline-none">
+                <div id="user-avatar"
+                  class="w-8 h-8 rounded-lg bg-stone-800 text-warm-gold flex items-center justify-center font-serif font-bold text-xs uppercase shadow-sm">
                   SV
                 </div>
                 <div class="hidden lg:block text-left pr-1">
                   <p id="user-name-display" class="text-xs font-semibold text-stone-900 leading-tight">Sophia Vance</p>
-                  <p id="user-email-display" class="text-[10px] text-stone-400 truncate max-w-[120px]">sophia@example.com</p>
+                  <p id="user-email-display" class="text-[10px] text-stone-400 truncate max-w-[120px]">
+                    sophia@example.com</p>
                 </div>
                 <i class="fa-solid fa-chevron-down text-[10px] text-stone-400 pl-0.5"></i>
               </button>
 
               <!-- Dropdown Menu -->
-              <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-boutique border border-stone-200/80 p-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+              <div id="user-dropdown"
+                class="hidden absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-boutique border border-stone-200/80 p-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
                 <div class="px-3 py-2 border-b border-stone-100 mb-1">
                   <p class="text-xs font-bold text-stone-900" id="dropdown-user-name">Sophia Vance</p>
                   <p class="text-[11px] text-stone-500 truncate" id="dropdown-user-email">sophia@example.com</p>
                 </div>
-                
-                <button onclick="openAccountModal()" class="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 rounded-xl transition-colors">
+
+                <button onclick="openAccountModal()"
+                  class="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 rounded-xl transition-colors">
                   <i class="fa-regular fa-user-gear text-warm-gold w-4"></i>
                   <span>Account & Switch User</span>
                 </button>
 
-                <button onclick="openBackupModal()" class="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 rounded-xl transition-colors">
+                <button onclick="openBackupModal()"
+                  class="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 rounded-xl transition-colors">
                   <i class="fa-solid fa-cloud-arrow-down text-stone-400 w-4"></i>
                   <span>Backup & Export Data</span>
                 </button>
 
-                <button onclick="loadFreshDemoDataPrompt()" class="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 rounded-xl transition-colors">
+                <button onclick="loadFreshDemoDataPrompt()"
+                  class="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 rounded-xl transition-colors">
                   <i class="fa-solid fa-rotate text-stone-400 w-4"></i>
                   <span>Reload Demo Closet</span>
                 </button>
 
                 <div class="border-t border-stone-100 my-1"></div>
 
-                <button onclick="handleLogout()" class="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-rose-600 hover:bg-rose-50 rounded-xl transition-colors">
+                <button onclick="handleLogout()"
+                  class="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-rose-600 hover:bg-rose-50 rounded-xl transition-colors">
                   <i class="fa-solid fa-arrow-right-from-bracket text-rose-500 w-4"></i>
                   <span>Sign Out</span>
                 </button>
@@ -350,43 +421,52 @@
 
     <!-- Main Content Area -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-24 md:pb-12">
-      
+
       <!-- ===================================================================== -->
       <!-- VIEW 1: WARDROBE INVENTORY & GALLERY -->
       <!-- ===================================================================== -->
       <section id="view-wardrobe" class="view-panel space-y-6">
         <!-- Top Wardrobe Banner / Summary -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gradient-to-r from-stone-900 via-stone-800 to-stone-900 text-stone-50 p-6 sm:p-8 rounded-3xl shadow-boutique relative overflow-hidden">
+        <div
+          class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gradient-to-r from-stone-900 via-stone-800 to-stone-900 text-stone-50 p-6 sm:p-8 rounded-3xl shadow-boutique relative overflow-hidden">
           <div class="relative z-10 max-w-xl">
-            <div class="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full text-warm-gold text-[11px] font-semibold tracking-wider uppercase mb-3 backdrop-blur-sm border border-white/10">
+            <div
+              class="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full text-warm-gold text-[11px] font-semibold tracking-wider uppercase mb-3 backdrop-blur-sm border border-white/10">
               <i class="fa-solid fa-gem"></i> Curated Collection
             </div>
             <h2 class="font-serif text-2xl sm:text-3xl font-bold tracking-tight">Your Digital Atelier</h2>
-            <p class="mt-1.5 text-stone-300 text-xs sm:text-sm font-light">Organize your clothing pieces, track wear frequency, and curate cohesive capsules.</p>
+            <p class="mt-1.5 text-stone-300 text-xs sm:text-sm font-light">Organize your clothing pieces, track wear
+              frequency, and curate cohesive capsules.</p>
           </div>
 
           <!-- Quick Stats Pills in Banner -->
           <div class="relative z-10 flex items-center gap-3 sm:gap-4">
-            <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-3 sm:p-4 text-center min-w-[80px]">
-              <span id="banner-total-items" class="block font-serif text-xl sm:text-2xl font-bold text-warm-gold">0</span>
+            <div
+              class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-3 sm:p-4 text-center min-w-[80px]">
+              <span id="banner-total-items"
+                class="block font-serif text-xl sm:text-2xl font-bold text-warm-gold">0</span>
               <span class="text-[10px] uppercase tracking-wider text-stone-300 font-semibold">Garments</span>
             </div>
-            <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-3 sm:p-4 text-center min-w-[80px]">
-              <span id="banner-total-logged" class="block font-serif text-xl sm:text-2xl font-bold text-stone-50">0</span>
+            <div
+              class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-3 sm:p-4 text-center min-w-[80px]">
+              <span id="banner-total-logged"
+                class="block font-serif text-xl sm:text-2xl font-bold text-stone-50">0</span>
               <span class="text-[10px] uppercase tracking-wider text-stone-300 font-semibold">Total Wears</span>
             </div>
-            <button onclick="openAddItemModal()" class="sm:hidden flex items-center justify-center w-12 h-12 rounded-2xl bg-warm-gold text-stone-900 shadow-lg active:scale-95">
+            <button onclick="openAddItemModal()"
+              class="sm:hidden flex items-center justify-center w-12 h-12 rounded-2xl bg-warm-gold text-stone-900 shadow-lg active:scale-95">
               <i class="fa-solid fa-plus text-lg"></i>
             </button>
           </div>
 
           <!-- Aesthetic background glow -->
-          <div class="absolute -top-20 -right-20 w-64 h-64 bg-warm-gold/20 rounded-full blur-3xl pointer-events-none"></div>
+          <div class="absolute -top-20 -right-20 w-64 h-64 bg-warm-gold/20 rounded-full blur-3xl pointer-events-none">
+          </div>
         </div>
 
         <!-- Search, Filter & Sort Controls Bar -->
         <div class="bg-white rounded-3xl border border-stone-200/80 p-4 sm:p-5 shadow-sm space-y-4">
-          
+
           <!-- Row 1: Search & Filter Dropdowns -->
           <div class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
             <!-- Search Input -->
@@ -394,8 +474,11 @@
               <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
                 <i class="fa-solid fa-magnifying-glass text-xs"></i>
               </span>
-              <input type="text" id="wardrobe-search" oninput="applyWardrobeFilters()" placeholder="Search garments by name, brand, color, or style tag..." class="w-full pl-9 pr-8 py-2 text-xs sm:text-sm bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-colors">
-              <button id="search-clear-btn" onclick="clearSearch()" class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-stone-400 hover:text-stone-600">
+              <input type="text" id="wardrobe-search" oninput="applyWardrobeFilters()"
+                placeholder="Search garments by name, brand, color, or style tag..."
+                class="w-full pl-9 pr-8 py-2 text-xs sm:text-sm bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-colors">
+              <button id="search-clear-btn" onclick="clearSearch()"
+                class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-stone-400 hover:text-stone-600">
                 <i class="fa-solid fa-xmark text-xs"></i>
               </button>
             </div>
@@ -403,7 +486,8 @@
             <!-- Filters Group -->
             <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
               <!-- Color Filter Dropdown -->
-              <select id="filter-color" onchange="applyWardrobeFilters()" class="text-xs bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 font-medium text-stone-700 focus:outline-none focus:border-stone-900 transition-colors cursor-pointer">
+              <select id="filter-color" onchange="applyWardrobeFilters()"
+                class="text-xs bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 font-medium text-stone-700 focus:outline-none focus:border-stone-900 transition-colors cursor-pointer">
                 <option value="all">All Colors</option>
                 <option value="Black">Black</option>
                 <option value="White">White / Cream</option>
@@ -416,7 +500,8 @@
               </select>
 
               <!-- Season Filter Dropdown -->
-              <select id="filter-season" onchange="applyWardrobeFilters()" class="text-xs bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 font-medium text-stone-700 focus:outline-none focus:border-stone-900 transition-colors cursor-pointer">
+              <select id="filter-season" onchange="applyWardrobeFilters()"
+                class="text-xs bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 font-medium text-stone-700 focus:outline-none focus:border-stone-900 transition-colors cursor-pointer">
                 <option value="all">All Seasons</option>
                 <option value="Spring">Spring</option>
                 <option value="Summer">Summer</option>
@@ -425,7 +510,8 @@
               </select>
 
               <!-- Sort Dropdown -->
-              <select id="filter-sort" onchange="applyWardrobeFilters()" class="text-xs bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 font-medium text-stone-700 focus:outline-none focus:border-stone-900 transition-colors cursor-pointer">
+              <select id="filter-sort" onchange="applyWardrobeFilters()"
+                class="text-xs bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 font-medium text-stone-700 focus:outline-none focus:border-stone-900 transition-colors cursor-pointer">
                 <option value="newest">Recently Added</option>
                 <option value="most-worn">Most Worn</option>
                 <option value="least-worn">Least Worn</option>
@@ -436,37 +522,44 @@
 
           <!-- Row 2: Category Filter Pills (Horizontal Scrolling on Mobile) -->
           <div class="pt-2 border-t border-stone-100 flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-            <button onclick="setCategoryFilter('all')" data-cat="all" class="cat-pill active flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all bg-stone-900 text-stone-50 shadow-sm shrink-0">
+            <button onclick="setCategoryFilter('all')" data-cat="all"
+              class="cat-pill active flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all bg-stone-900 text-stone-50 shadow-sm shrink-0">
               <i class="fa-solid fa-border-all text-[10px]"></i>
               <span>All Items</span>
               <span id="cat-count-all" class="px-1.5 py-0.2 text-[10px] rounded-full bg-white/20">0</span>
             </button>
-            <button onclick="setCategoryFilter('tops')" data-cat="tops" class="cat-pill flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium text-stone-600 bg-stone-100 hover:bg-stone-200 transition-all shrink-0">
+            <button onclick="setCategoryFilter('tops')" data-cat="tops"
+              class="cat-pill flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium text-stone-600 bg-stone-100 hover:bg-stone-200 transition-all shrink-0">
               <i class="fa-solid fa-shirt text-[10px]"></i>
               <span>Shirts & Tops</span>
               <span id="cat-count-tops" class="px-1.5 py-0.2 text-[10px] rounded-full bg-stone-200">0</span>
             </button>
-            <button onclick="setCategoryFilter('bottoms')" data-cat="bottoms" class="cat-pill flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium text-stone-600 bg-stone-100 hover:bg-stone-200 transition-all shrink-0">
+            <button onclick="setCategoryFilter('bottoms')" data-cat="bottoms"
+              class="cat-pill flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium text-stone-600 bg-stone-100 hover:bg-stone-200 transition-all shrink-0">
               <i class="fa-solid fa-person-walking text-[10px]"></i>
               <span>Pants & Bottoms</span>
               <span id="cat-count-bottoms" class="px-1.5 py-0.2 text-[10px] rounded-full bg-stone-200">0</span>
             </button>
-            <button onclick="setCategoryFilter('outerwear')" data-cat="outerwear" class="cat-pill flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium text-stone-600 bg-stone-100 hover:bg-stone-200 transition-all shrink-0">
+            <button onclick="setCategoryFilter('outerwear')" data-cat="outerwear"
+              class="cat-pill flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium text-stone-600 bg-stone-100 hover:bg-stone-200 transition-all shrink-0">
               <i class="fa-solid fa-vest text-[10px]"></i>
               <span>Outerwear & Jackets</span>
               <span id="cat-count-outerwear" class="px-1.5 py-0.2 text-[10px] rounded-full bg-stone-200">0</span>
             </button>
-            <button onclick="setCategoryFilter('shoes')" data-cat="shoes" class="cat-pill flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium text-stone-600 bg-stone-100 hover:bg-stone-200 transition-all shrink-0">
+            <button onclick="setCategoryFilter('shoes')" data-cat="shoes"
+              class="cat-pill flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium text-stone-600 bg-stone-100 hover:bg-stone-200 transition-all shrink-0">
               <i class="fa-solid fa-shoe-prints text-[10px]"></i>
               <span>Footwear</span>
               <span id="cat-count-shoes" class="px-1.5 py-0.2 text-[10px] rounded-full bg-stone-200">0</span>
             </button>
-            <button onclick="setCategoryFilter('accessories')" data-cat="accessories" class="cat-pill flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium text-stone-600 bg-stone-100 hover:bg-stone-200 transition-all shrink-0">
+            <button onclick="setCategoryFilter('accessories')" data-cat="accessories"
+              class="cat-pill flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium text-stone-600 bg-stone-100 hover:bg-stone-200 transition-all shrink-0">
               <i class="fa-solid fa-glasses text-[10px]"></i>
               <span>Accessories & Bags</span>
               <span id="cat-count-accessories" class="px-1.5 py-0.2 text-[10px] rounded-full bg-stone-200">0</span>
             </button>
-            <button onclick="setCategoryFilter('ethnic')" data-cat="ethnic" class="cat-pill flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium text-stone-600 bg-stone-100 hover:bg-stone-200 transition-all shrink-0">
+            <button onclick="setCategoryFilter('ethnic')" data-cat="ethnic"
+              class="cat-pill flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium text-stone-600 bg-stone-100 hover:bg-stone-200 transition-all shrink-0">
               <i class="fa-solid fa-gem text-[10px]"></i>
               <span>Traditional / Ethnic</span>
               <span id="cat-count-ethnic" class="px-1.5 py-0.2 text-[10px] rounded-full bg-stone-200">0</span>
@@ -480,22 +573,27 @@
         </div>
 
         <!-- Empty State (When no items match search or closet is empty) -->
-        <div id="wardrobe-empty-state" class="hidden flex-col items-center justify-center text-center py-16 px-4 bg-white rounded-3xl border border-dashed border-stone-300">
+        <div id="wardrobe-empty-state"
+          class="hidden flex-col items-center justify-center text-center py-16 px-4 bg-white rounded-3xl border border-dashed border-stone-300">
           <div class="w-16 h-16 rounded-full bg-stone-100 text-stone-400 flex items-center justify-center mb-4">
             <i class="fa-solid fa-shirt text-2xl"></i>
           </div>
           <h3 class="font-serif text-lg font-bold text-stone-800" id="empty-title">Your Wardrobe is Empty</h3>
-          <p class="text-xs text-stone-500 max-w-sm mt-1 mb-6" id="empty-subtitle">Start cataloging your favorite shirts, trousers, jackets, and accessories to unlock outfit logging.</p>
+          <p class="text-xs text-stone-500 max-w-sm mt-1 mb-6" id="empty-subtitle">Start cataloging your favorite
+            shirts, trousers, jackets, and accessories to unlock outfit logging.</p>
           <div class="flex flex-wrap items-center justify-center gap-3">
-            <button onclick="openAddItemModal()" class="px-5 py-2.5 bg-stone-900 hover:bg-stone-800 text-stone-50 rounded-xl text-xs font-semibold shadow-sm transition-all flex items-center gap-2">
+            <button onclick="openAddItemModal()"
+              class="px-5 py-2.5 bg-stone-900 hover:bg-stone-800 text-stone-50 rounded-xl text-xs font-semibold shadow-sm transition-all flex items-center gap-2">
               <i class="fa-solid fa-plus text-warm-gold"></i>
               <span>Add First Garment</span>
             </button>
-            <button onclick="openBatchImportModal()" class="px-4 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-200 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5">
+            <button onclick="openBatchImportModal()"
+              class="px-4 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-200 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5">
               <i class="fa-solid fa-layer-group text-warm-gold"></i>
               <span>Batch Import Photos</span>
             </button>
-            <button onclick="loadFreshDemoDataPrompt()" class="px-4 py-2.5 bg-warm-champagne hover:bg-stone-200 text-stone-800 border border-warm-gold/30 rounded-xl text-xs font-semibold transition-all">
+            <button onclick="loadFreshDemoDataPrompt()"
+              class="px-4 py-2.5 bg-warm-champagne hover:bg-stone-200 text-stone-800 border border-warm-gold/30 rounded-xl text-xs font-semibold transition-all">
               Load Curated Demo Items
             </button>
           </div>
@@ -506,7 +604,7 @@
       <!-- VIEW 2: DAILY OUTFIT LOGGER (OOTD) -->
       <!-- ===================================================================== -->
       <section id="view-logger" class="view-panel hidden space-y-6">
-        
+
         <!-- Weekly Rolling 7-Day Strip -->
         <div class="bg-white rounded-3xl border border-stone-200/80 p-4 sm:p-6 shadow-sm">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
@@ -515,14 +613,20 @@
               <h3 class="font-serif text-lg sm:text-xl font-bold text-stone-900" id="week-strip-range">This Week</h3>
             </div>
             <div class="flex items-center gap-2">
-              <input type="date" id="ootd-direct-date-input" onchange="onDirectDateChange(event)" class="text-xs bg-stone-50 border border-stone-200 rounded-xl px-2.5 py-1.5 font-medium text-stone-700 focus:outline-none focus:border-stone-900">
-              <button onclick="shiftWeek(-7)" class="w-8 h-8 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center transition-colors" title="Previous Week">
+              <input type="date" id="ootd-direct-date-input" onchange="onDirectDateChange(event)"
+                class="text-xs bg-stone-50 border border-stone-200 rounded-xl px-2.5 py-1.5 font-medium text-stone-700 focus:outline-none focus:border-stone-900">
+              <button onclick="shiftWeek(-7)"
+                class="w-8 h-8 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center transition-colors"
+                title="Previous Week">
                 <i class="fa-solid fa-chevron-left text-xs"></i>
               </button>
-              <button onclick="jumpToToday()" class="px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold transition-colors">
+              <button onclick="jumpToToday()"
+                class="px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold transition-colors">
                 Today
               </button>
-              <button onclick="shiftWeek(7)" class="w-8 h-8 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center transition-colors" title="Next Week">
+              <button onclick="shiftWeek(7)"
+                class="w-8 h-8 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center transition-colors"
+                title="Next Week">
                 <i class="fa-solid fa-chevron-right text-xs"></i>
               </button>
             </div>
@@ -536,34 +640,47 @@
 
         <!-- Active Date OOTD Workspace (2 Columns on Desktop) -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          
+
           <!-- Left Column: Outfit Display & Day Details (5 cols) -->
           <div class="lg:col-span-5 space-y-5">
-            
+
             <!-- Date Summary Card -->
             <div class="bg-white rounded-3xl border border-stone-200/80 p-5 sm:p-6 shadow-boutique">
               <div class="flex items-center justify-between pb-4 border-b border-stone-100">
                 <div>
-                  <span id="ootd-day-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-warm-gold/20 text-stone-900">Today</span>
-                  <h2 id="ootd-full-date-title" class="font-serif text-xl sm:text-2xl font-bold text-stone-900 mt-1">Tuesday, Aug 18</h2>
+                  <span id="ootd-day-badge"
+                    class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-warm-gold/20 text-stone-900">Today</span>
+                  <h2 id="ootd-full-date-title" class="font-serif text-xl sm:text-2xl font-bold text-stone-900 mt-1">
+                    Tuesday, Aug 18</h2>
                 </div>
                 <!-- Weather & Vibe Icon Selector -->
                 <div class="flex items-center gap-1.5 bg-stone-50 p-1 rounded-2xl border border-stone-200/60">
-                  <button type="button" onclick="setOotdWeather('sunny')" id="weather-sunny" title="Sunny" class="weather-btn w-7 h-7 rounded-xl flex items-center justify-center text-xs text-amber-500 hover:bg-white transition-all"><i class="fa-solid fa-sun"></i></button>
-                  <button type="button" onclick="setOotdWeather('cloudy')" id="weather-cloudy" title="Cloudy" class="weather-btn w-7 h-7 rounded-xl flex items-center justify-center text-xs text-stone-400 hover:bg-white transition-all"><i class="fa-solid fa-cloud"></i></button>
-                  <button type="button" onclick="setOotdWeather('rainy')" id="weather-rainy" title="Rainy" class="weather-btn w-7 h-7 rounded-xl flex items-center justify-center text-xs text-blue-400 hover:bg-white transition-all"><i class="fa-solid fa-cloud-showers-heavy"></i></button>
-                  <button type="button" onclick="setOotdWeather('chilly')" id="weather-chilly" title="Chilly" class="weather-btn w-7 h-7 rounded-xl flex items-center justify-center text-xs text-sky-500 hover:bg-white transition-all"><i class="fa-solid fa-snowflake"></i></button>
+                  <button type="button" onclick="setOotdWeather('sunny')" id="weather-sunny" title="Sunny"
+                    class="weather-btn w-7 h-7 rounded-xl flex items-center justify-center text-xs text-amber-500 hover:bg-white transition-all"><i
+                      class="fa-solid fa-sun"></i></button>
+                  <button type="button" onclick="setOotdWeather('cloudy')" id="weather-cloudy" title="Cloudy"
+                    class="weather-btn w-7 h-7 rounded-xl flex items-center justify-center text-xs text-stone-400 hover:bg-white transition-all"><i
+                      class="fa-solid fa-cloud"></i></button>
+                  <button type="button" onclick="setOotdWeather('rainy')" id="weather-rainy" title="Rainy"
+                    class="weather-btn w-7 h-7 rounded-xl flex items-center justify-center text-xs text-blue-400 hover:bg-white transition-all"><i
+                      class="fa-solid fa-cloud-showers-heavy"></i></button>
+                  <button type="button" onclick="setOotdWeather('chilly')" id="weather-chilly" title="Chilly"
+                    class="weather-btn w-7 h-7 rounded-xl flex items-center justify-center text-xs text-sky-500 hover:bg-white transition-all"><i
+                      class="fa-solid fa-snowflake"></i></button>
                 </div>
               </div>
 
               <!-- Selected Outfit Items Visual Mannequin Stack -->
               <div class="py-5">
                 <div class="flex items-center justify-between mb-3">
-                  <span class="text-xs font-bold uppercase tracking-wider text-stone-500">Selected Garments (<span id="ootd-selected-count">0</span>)</span>
-                  <button onclick="clearCurrentOotdSelection()" class="text-xs text-rose-500 hover:underline font-medium">Clear All</button>
+                  <span class="text-xs font-bold uppercase tracking-wider text-stone-500">Selected Garments (<span
+                      id="ootd-selected-count">0</span>)</span>
+                  <button onclick="clearCurrentOotdSelection()"
+                    class="text-xs text-rose-500 hover:underline font-medium">Clear All</button>
                 </div>
 
-                <div id="ootd-selected-collage" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 min-h-[140px] p-3 bg-stone-50/80 rounded-2xl border border-stone-200/60 items-center justify-center">
+                <div id="ootd-selected-collage"
+                  class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 min-h-[140px] p-3 bg-stone-50/80 rounded-2xl border border-stone-200/60 items-center justify-center">
                   <!-- Dynamically populated or empty hint -->
                 </div>
               </div>
@@ -571,19 +688,34 @@
               <!-- Occasion & Notes Input -->
               <div class="space-y-3 pt-2">
                 <div>
-                  <label class="block text-[11px] font-semibold uppercase tracking-wider text-stone-500 mb-1">Occasion / Vibe</label>
+                  <label class="block text-[11px] font-semibold uppercase tracking-wider text-stone-500 mb-1">Occasion /
+                    Vibe</label>
                   <div class="flex flex-wrap gap-1.5" id="occasion-tags">
-                    <button type="button" onclick="toggleOccasion('Work')" class="occasion-tag px-2.5 py-1 text-xs rounded-xl border border-stone-200 text-stone-600 bg-stone-50 hover:border-stone-900 transition-colors">Work / Office</button>
-                    <button type="button" onclick="toggleOccasion('Casual')" class="occasion-tag px-2.5 py-1 text-xs rounded-xl border border-stone-200 text-stone-600 bg-stone-50 hover:border-stone-900 transition-colors">Casual Daily</button>
-                    <button type="button" onclick="toggleOccasion('Evening')" class="occasion-tag px-2.5 py-1 text-xs rounded-xl border border-stone-200 text-stone-600 bg-stone-50 hover:border-stone-900 transition-colors">Evening Dinner</button>
-                    <button type="button" onclick="toggleOccasion('Gym')" class="occasion-tag px-2.5 py-1 text-xs rounded-xl border border-stone-200 text-stone-600 bg-stone-50 hover:border-stone-900 transition-colors">Athletic / Gym</button>
-                    <button type="button" onclick="toggleOccasion('Event')" class="occasion-tag px-2.5 py-1 text-xs rounded-xl border border-stone-200 text-stone-600 bg-stone-50 hover:border-stone-900 transition-colors">Festive / Formal</button>
+                    <button type="button" onclick="toggleOccasion('Work')"
+                      class="occasion-tag px-2.5 py-1 text-xs rounded-xl border border-stone-200 text-stone-600 bg-stone-50 hover:border-stone-900 transition-colors">Work
+                      / Office</button>
+                    <button type="button" onclick="toggleOccasion('Casual')"
+                      class="occasion-tag px-2.5 py-1 text-xs rounded-xl border border-stone-200 text-stone-600 bg-stone-50 hover:border-stone-900 transition-colors">Casual
+                      Daily</button>
+                    <button type="button" onclick="toggleOccasion('Evening')"
+                      class="occasion-tag px-2.5 py-1 text-xs rounded-xl border border-stone-200 text-stone-600 bg-stone-50 hover:border-stone-900 transition-colors">Evening
+                      Dinner</button>
+                    <button type="button" onclick="toggleOccasion('Gym')"
+                      class="occasion-tag px-2.5 py-1 text-xs rounded-xl border border-stone-200 text-stone-600 bg-stone-50 hover:border-stone-900 transition-colors">Athletic
+                      / Gym</button>
+                    <button type="button" onclick="toggleOccasion('Event')"
+                      class="occasion-tag px-2.5 py-1 text-xs rounded-xl border border-stone-200 text-stone-600 bg-stone-50 hover:border-stone-900 transition-colors">Festive
+                      / Formal</button>
                   </div>
                 </div>
 
                 <div>
-                  <label for="ootd-notes" class="block text-[11px] font-semibold uppercase tracking-wider text-stone-500 mb-1">Styling Notes</label>
-                  <textarea id="ootd-notes" rows="2" placeholder="e.g., Paired with gold watch, rolled sleeves, tailored fit..." class="w-full p-3 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-colors resize-none"></textarea>
+                  <label for="ootd-notes"
+                    class="block text-[11px] font-semibold uppercase tracking-wider text-stone-500 mb-1">Styling
+                    Notes</label>
+                  <textarea id="ootd-notes" rows="2"
+                    placeholder="e.g., Paired with gold watch, rolled sleeves, tailored fit..."
+                    class="w-full p-3 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-colors resize-none"></textarea>
                 </div>
 
                 <!-- Rating Stars -->
@@ -600,7 +732,8 @@
               </div>
 
               <!-- Save / Log Button -->
-              <button type="button" onclick="saveActiveOotdLog()" class="w-full mt-5 py-3 px-4 bg-stone-900 hover:bg-stone-800 text-stone-50 rounded-2xl font-semibold text-sm shadow-md transition-all flex items-center justify-center gap-2 active:scale-95">
+              <button type="button" onclick="saveActiveOotdLog()"
+                class="w-full mt-5 py-3 px-4 bg-stone-900 hover:bg-stone-800 text-stone-50 rounded-2xl font-semibold text-sm shadow-md transition-all flex items-center justify-center gap-2 active:scale-95">
                 <i class="fa-solid fa-bookmark text-warm-gold"></i>
                 <span id="ootd-save-btn-text">Save Daily Outfit Entry</span>
               </button>
@@ -617,7 +750,8 @@
                 </div>
 
                 <!-- Randomizer Button -->
-                <button onclick="randomizeOutfitForActiveDate()" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-stone-100 hover:bg-warm-champagne text-stone-800 rounded-xl text-xs font-semibold transition-colors border border-stone-200/60">
+                <button onclick="randomizeOutfitForActiveDate()"
+                  class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-stone-100 hover:bg-warm-champagne text-stone-800 rounded-xl text-xs font-semibold transition-colors border border-stone-200/60">
                   <i class="fa-solid fa-dice text-warm-gold"></i>
                   <span>Suggest Random Fit</span>
                 </button>
@@ -625,13 +759,20 @@
 
               <!-- Category tabs inside picker -->
               <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-2 border-b border-stone-100">
-                <button onclick="setPickerCategory('all')" data-picker-cat="all" class="picker-cat-btn active px-3 py-1 text-xs font-semibold rounded-lg bg-stone-900 text-stone-50">All</button>
-                <button onclick="setPickerCategory('tops')" data-picker-cat="tops" class="picker-cat-btn px-3 py-1 text-xs font-medium rounded-lg text-stone-600 hover:bg-stone-100">Tops</button>
-                <button onclick="setPickerCategory('bottoms')" data-picker-cat="bottoms" class="picker-cat-btn px-3 py-1 text-xs font-medium rounded-lg text-stone-600 hover:bg-stone-100">Bottoms</button>
-                <button onclick="setPickerCategory('outerwear')" data-picker-cat="outerwear" class="picker-cat-btn px-3 py-1 text-xs font-medium rounded-lg text-stone-600 hover:bg-stone-100">Outerwear</button>
-                <button onclick="setPickerCategory('shoes')" data-picker-cat="shoes" class="picker-cat-btn px-3 py-1 text-xs font-medium rounded-lg text-stone-600 hover:bg-stone-100">Shoes</button>
-                <button onclick="setPickerCategory('accessories')" data-picker-cat="accessories" class="picker-cat-btn px-3 py-1 text-xs font-medium rounded-lg text-stone-600 hover:bg-stone-100">Accessories</button>
-                <button onclick="setPickerCategory('ethnic')" data-picker-cat="ethnic" class="picker-cat-btn px-3 py-1 text-xs font-medium rounded-lg text-stone-600 hover:bg-stone-100">Ethnic</button>
+                <button onclick="setPickerCategory('all')" data-picker-cat="all"
+                  class="picker-cat-btn active px-3 py-1 text-xs font-semibold rounded-lg bg-stone-900 text-stone-50">All</button>
+                <button onclick="setPickerCategory('tops')" data-picker-cat="tops"
+                  class="picker-cat-btn px-3 py-1 text-xs font-medium rounded-lg text-stone-600 hover:bg-stone-100">Tops</button>
+                <button onclick="setPickerCategory('bottoms')" data-picker-cat="bottoms"
+                  class="picker-cat-btn px-3 py-1 text-xs font-medium rounded-lg text-stone-600 hover:bg-stone-100">Bottoms</button>
+                <button onclick="setPickerCategory('outerwear')" data-picker-cat="outerwear"
+                  class="picker-cat-btn px-3 py-1 text-xs font-medium rounded-lg text-stone-600 hover:bg-stone-100">Outerwear</button>
+                <button onclick="setPickerCategory('shoes')" data-picker-cat="shoes"
+                  class="picker-cat-btn px-3 py-1 text-xs font-medium rounded-lg text-stone-600 hover:bg-stone-100">Shoes</button>
+                <button onclick="setPickerCategory('accessories')" data-picker-cat="accessories"
+                  class="picker-cat-btn px-3 py-1 text-xs font-medium rounded-lg text-stone-600 hover:bg-stone-100">Accessories</button>
+                <button onclick="setPickerCategory('ethnic')" data-picker-cat="ethnic"
+                  class="picker-cat-btn px-3 py-1 text-xs font-medium rounded-lg text-stone-600 hover:bg-stone-100">Ethnic</button>
               </div>
 
               <!-- Quick Picker Search -->
@@ -639,11 +780,14 @@
                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-stone-400">
                   <i class="fa-solid fa-magnifying-glass text-xs"></i>
                 </span>
-                <input type="text" id="picker-search" oninput="renderPickerItems()" placeholder="Filter items in picker..." class="w-full pl-8 pr-4 py-1.5 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-stone-900">
+                <input type="text" id="picker-search" oninput="renderPickerItems()"
+                  placeholder="Filter items in picker..."
+                  class="w-full pl-8 pr-4 py-1.5 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-stone-900">
               </div>
 
               <!-- Wardrobe Picker Grid (Scrollable) -->
-              <div id="picker-items-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[500px] overflow-y-auto pr-1 mt-4">
+              <div id="picker-items-grid"
+                class="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[500px] overflow-y-auto pr-1 mt-4">
                 <!-- Dynamically populated selectable items -->
               </div>
             </div>
@@ -656,31 +800,38 @@
       <!-- VIEW 3: INTERACTIVE MONTHLY CALENDAR VIEW -->
       <!-- ===================================================================== -->
       <section id="view-calendar" class="view-panel hidden space-y-6">
-        
+
         <div class="bg-white rounded-3xl border border-stone-200/80 p-5 sm:p-8 shadow-sm">
-          
+
           <!-- Month Header Controls -->
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-stone-100">
             <div>
               <span class="text-[10px] font-bold tracking-wider uppercase text-warm-gold">Outfit History Archive</span>
-              <h2 class="font-serif text-2xl sm:text-3xl font-bold text-stone-900" id="calendar-month-year">August 2026</h2>
+              <h2 class="font-serif text-2xl sm:text-3xl font-bold text-stone-900" id="calendar-month-year">August 2026
+              </h2>
             </div>
 
             <div class="flex items-center gap-2">
-              <button onclick="navigateMonth(-1)" class="p-2.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors" title="Previous Month">
+              <button onclick="navigateMonth(-1)"
+                class="p-2.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors"
+                title="Previous Month">
                 <i class="fa-solid fa-chevron-left text-xs"></i>
               </button>
-              <button onclick="jumpCalendarToCurrentMonth()" class="px-4 py-2 rounded-xl bg-stone-900 text-stone-50 text-xs font-semibold shadow-sm hover:bg-stone-800 transition-colors">
+              <button onclick="jumpCalendarToCurrentMonth()"
+                class="px-4 py-2 rounded-xl bg-stone-900 text-stone-50 text-xs font-semibold shadow-sm hover:bg-stone-800 transition-colors">
                 Current Month
               </button>
-              <button onclick="navigateMonth(1)" class="p-2.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors" title="Next Month">
+              <button onclick="navigateMonth(1)"
+                class="p-2.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors"
+                title="Next Month">
                 <i class="fa-solid fa-chevron-right text-xs"></i>
               </button>
             </div>
           </div>
 
           <!-- Weekday Headers -->
-          <div class="grid grid-cols-7 gap-2 text-center text-xs font-bold uppercase tracking-wider text-stone-400 py-3">
+          <div
+            class="grid grid-cols-7 gap-2 text-center text-xs font-bold uppercase tracking-wider text-stone-400 py-3">
             <div>Sun</div>
             <div>Mon</div>
             <div>Tue</div>
@@ -702,7 +853,7 @@
       <!-- VIEW 4: CLOSET INSIGHTS & ANALYTICS -->
       <!-- ===================================================================== -->
       <section id="view-analytics" class="view-panel hidden space-y-6">
-        
+
         <!-- Summary Cards Row -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           <div class="bg-white p-5 sm:p-6 rounded-3xl border border-stone-200/80 shadow-sm">
@@ -751,7 +902,7 @@
 
         <!-- Charts & Rankings Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          
+
           <!-- Category Distribution -->
           <div class="bg-white p-6 sm:p-7 rounded-3xl border border-stone-200/80 shadow-sm space-y-4">
             <div class="flex items-center justify-between">
@@ -780,21 +931,26 @@
     </main>
 
     <!-- Mobile Bottom Navigation Bar (Fixed at bottom on small screens) -->
-    <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 glass-panel border-t border-stone-200/80 px-2 py-2 shadow-float">
+    <nav
+      class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 glass-panel border-t border-stone-200/80 px-2 py-2 shadow-float">
       <div class="grid grid-cols-4 gap-1">
-        <button onclick="switchView('wardrobe')" id="mob-tab-wardrobe" class="mob-tab-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-stone-900 font-bold">
+        <button onclick="switchView('wardrobe')" id="mob-tab-wardrobe"
+          class="mob-tab-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-stone-900 font-bold">
           <i class="fa-solid fa-shirt text-sm mb-0.5"></i>
           <span class="text-[10px]">Closet</span>
         </button>
-        <button onclick="switchView('logger')" id="mob-tab-logger" class="mob-tab-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-stone-400 font-medium hover:text-stone-700">
+        <button onclick="switchView('logger')" id="mob-tab-logger"
+          class="mob-tab-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-stone-400 font-medium hover:text-stone-700">
           <i class="fa-solid fa-calendar-check text-sm mb-0.5"></i>
           <span class="text-[10px]">OOTD</span>
         </button>
-        <button onclick="switchView('calendar')" id="mob-tab-calendar" class="mob-tab-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-stone-400 font-medium hover:text-stone-700">
+        <button onclick="switchView('calendar')" id="mob-tab-calendar"
+          class="mob-tab-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-stone-400 font-medium hover:text-stone-700">
           <i class="fa-regular fa-calendar-days text-sm mb-0.5"></i>
           <span class="text-[10px]">Calendar</span>
         </button>
-        <button onclick="switchView('analytics')" id="mob-tab-analytics" class="mob-tab-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-stone-400 font-medium hover:text-stone-700">
+        <button onclick="switchView('analytics')" id="mob-tab-analytics"
+          class="mob-tab-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-stone-400 font-medium hover:text-stone-700">
           <i class="fa-solid fa-chart-pie text-sm mb-0.5"></i>
           <span class="text-[10px]">Insights</span>
         </button>
@@ -806,16 +962,19 @@
   <!-- ========================================================================= -->
   <!-- MODAL 1: ADD / EDIT CLOTHING ITEM -->
   <!-- ========================================================================= -->
-  <div id="modal-item" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto glass-backdrop">
-    <div class="relative w-full max-w-lg bg-white rounded-3xl shadow-float border border-stone-200/80 overflow-hidden my-auto max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 duration-200">
-      
+  <div id="modal-item"
+    class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto glass-backdrop">
+    <div
+      class="relative w-full max-w-lg bg-white rounded-3xl shadow-float border border-stone-200/80 overflow-hidden my-auto max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 duration-200">
+
       <!-- Modal Header -->
       <div class="px-6 py-4 border-b border-stone-100 flex items-center justify-between bg-stone-50/50">
         <div>
           <h3 id="item-modal-title" class="font-serif text-lg font-bold text-stone-900">Add Clothing Item</h3>
           <p class="text-xs text-stone-500">Catalog garment details, photo, and styling tags.</p>
         </div>
-        <button onclick="closeItemModal()" class="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 flex items-center justify-center transition-colors">
+        <button onclick="closeItemModal()"
+          class="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 flex items-center justify-center transition-colors">
           <i class="fa-solid fa-xmark text-sm"></i>
         </button>
       </div>
@@ -827,17 +986,23 @@
         <!-- Image Upload / Camera Area (Multiple Images Supported) -->
         <div>
           <div class="flex items-center justify-between mb-2">
-            <label class="block text-xs font-semibold uppercase tracking-wider text-stone-600">Garment Photos <span class="text-stone-400 font-normal lowercase">(multiple photos supported)</span></label>
-            <span id="item-gallery-count-badge" class="text-[11px] font-semibold text-warm-gold hidden"><i class="fa-solid fa-images mr-1"></i><span id="item-photo-count-num">0</span> photos</span>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-stone-600">Garment Photos <span
+                class="text-stone-400 font-normal lowercase">(multiple photos supported)</span></label>
+            <span id="item-gallery-count-badge" class="text-[11px] font-semibold text-warm-gold hidden"><i
+                class="fa-solid fa-images mr-1"></i><span id="item-photo-count-num">0</span> photos</span>
           </div>
-          
+
           <div class="flex flex-col items-center">
             <!-- Preview Box / Drag & Drop Zone -->
-            <div id="item-image-preview-container" class="relative w-full h-48 sm:h-56 rounded-2xl bg-stone-100 border-2 border-dashed border-stone-300 overflow-hidden flex flex-col items-center justify-center text-center group cursor-pointer hover:border-stone-900 transition-colors" onclick="document.getElementById('item-file-input').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+            <div id="item-image-preview-container"
+              class="relative w-full h-48 sm:h-56 rounded-2xl bg-stone-100 border-2 border-dashed border-stone-300 overflow-hidden flex flex-col items-center justify-center text-center group cursor-pointer hover:border-stone-900 transition-colors"
+              onclick="document.getElementById('item-file-input').click()" ondragover="handleDragOver(event)"
+              ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
               <img id="item-image-preview" src="" alt="Preview" class="hidden w-full h-full object-contain p-2">
-              
+
               <div id="item-image-placeholder" class="p-4 space-y-2 pointer-events-none">
-                <div class="w-12 h-12 rounded-full bg-stone-200 text-stone-500 mx-auto flex items-center justify-center group-hover:scale-110 transition-transform">
+                <div
+                  class="w-12 h-12 rounded-full bg-stone-200 text-stone-500 mx-auto flex items-center justify-center group-hover:scale-110 transition-transform">
                   <i class="fa-solid fa-camera text-lg"></i>
                 </div>
                 <div>
@@ -847,12 +1012,15 @@
               </div>
 
               <!-- Remove active image button -->
-              <button type="button" id="remove-image-btn" onclick="removeActiveImage(event)" class="hidden absolute top-2 right-2 w-7 h-7 rounded-full bg-stone-900/80 text-white flex items-center justify-center text-xs hover:bg-rose-600 transition-colors shadow-md z-20" title="Delete current photo">
+              <button type="button" id="remove-image-btn" onclick="removeActiveImage(event)"
+                class="hidden absolute top-2 right-2 w-7 h-7 rounded-full bg-stone-900/80 text-white flex items-center justify-center text-xs hover:bg-rose-600 transition-colors shadow-md z-20"
+                title="Delete current photo">
                 <i class="fa-solid fa-trash-can"></i>
               </button>
 
               <!-- Star / Cover Photo Indicator -->
-              <div id="cover-photo-badge" class="hidden absolute top-2 left-2 px-2 py-0.5 rounded-full bg-stone-900/85 backdrop-blur-sm text-warm-gold text-[10px] font-bold shadow-sm flex items-center gap-1 z-20">
+              <div id="cover-photo-badge"
+                class="hidden absolute top-2 left-2 px-2 py-0.5 rounded-full bg-stone-900/85 backdrop-blur-sm text-warm-gold text-[10px] font-bold shadow-sm flex items-center gap-1 z-20">
                 <i class="fa-solid fa-star text-[9px] text-warm-gold"></i> Primary Cover
               </div>
             </div>
@@ -863,43 +1031,55 @@
                 <span class="text-[11px] font-semibold text-stone-600">Garment Photo Angles</span>
                 <span class="text-[10px] text-stone-400">★ Starred is primary cover</span>
               </div>
-              <div id="item-gallery-thumbnails" class="flex items-center gap-2 overflow-x-auto pb-1.5 pt-0.5 scrollbar-thin max-w-full">
+              <div id="item-gallery-thumbnails"
+                class="flex items-center gap-2 overflow-x-auto pb-1.5 pt-0.5 scrollbar-thin max-w-full">
                 <!-- Dynamically populated thumbnails -->
               </div>
             </div>
 
             <!-- Hidden Multi-File Input -->
-            <input type="file" id="item-file-input" accept="image/*" multiple class="hidden" onchange="handleImageUpload(event)">
-            
+            <input type="file" id="item-file-input" accept="image/*" multiple class="hidden"
+              onchange="handleImageUpload(event)">
+
             <!-- Quick Preset Swatches Button & Camera Trigger & Add More -->
             <div class="mt-2.5 w-full flex items-center justify-between gap-2">
-              <button type="button" onclick="openPresetPicker()" class="text-xs text-warm-gold hover:text-stone-900 font-semibold flex items-center gap-1">
+              <button type="button" onclick="openPresetPicker()"
+                class="text-xs text-warm-gold hover:text-stone-900 font-semibold flex items-center gap-1">
                 <i class="fa-solid fa-wand-magic-sparkles"></i> Sample Presets
               </button>
               <div class="flex items-center gap-2">
-                <button type="button" onclick="document.getElementById('item-file-input').click()" class="text-xs text-stone-700 hover:text-stone-900 font-medium flex items-center gap-1.5 bg-stone-100 hover:bg-stone-200 px-2.5 py-1 rounded-lg transition-colors">
+                <button type="button" onclick="document.getElementById('item-file-input').click()"
+                  class="text-xs text-stone-700 hover:text-stone-900 font-medium flex items-center gap-1.5 bg-stone-100 hover:bg-stone-200 px-2.5 py-1 rounded-lg transition-colors">
                   <i class="fa-solid fa-plus text-[10px] text-warm-gold"></i> Add Photos
                 </button>
-                <button type="button" onclick="document.getElementById('item-camera-input').click()" class="text-xs text-stone-700 hover:text-stone-900 font-medium flex items-center gap-1 bg-stone-100 hover:bg-stone-200 px-2.5 py-1 rounded-lg transition-colors">
+                <button type="button" onclick="document.getElementById('item-camera-input').click()"
+                  class="text-xs text-stone-700 hover:text-stone-900 font-medium flex items-center gap-1 bg-stone-100 hover:bg-stone-200 px-2.5 py-1 rounded-lg transition-colors">
                   <i class="fa-solid fa-camera text-[10px]"></i> Camera
                 </button>
               </div>
-              <input type="file" id="item-camera-input" accept="image/*" capture="environment" class="hidden" onchange="handleImageUpload(event)">
+              <input type="file" id="item-camera-input" accept="image/*" capture="environment" class="hidden"
+                onchange="handleImageUpload(event)">
             </div>
           </div>
         </div>
 
         <!-- Title / Name -->
         <div>
-          <label for="item-title" class="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1.5">Item Name / Title *</label>
-          <input type="text" id="item-title" required placeholder="e.g. Classic White Poplin Shirt, Camel Trench Coat..." class="w-full px-3.5 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-colors">
+          <label for="item-title"
+            class="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1.5">Item Name / Title
+            *</label>
+          <input type="text" id="item-title" required
+            placeholder="e.g. Classic White Poplin Shirt, Camel Trench Coat..."
+            class="w-full px-3.5 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-colors">
         </div>
 
         <!-- Category & Brand Row -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label for="item-category" class="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1.5">Category *</label>
-            <select id="item-category" required class="w-full px-3.5 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-colors cursor-pointer">
+            <label for="item-category"
+              class="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1.5">Category *</label>
+            <select id="item-category" required
+              class="w-full px-3.5 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-colors cursor-pointer">
               <option value="tops">Shirts & Tops</option>
               <option value="bottoms">Pants & Bottoms</option>
               <option value="outerwear">Outerwear & Jackets</option>
@@ -910,24 +1090,33 @@
           </div>
 
           <div>
-            <label for="item-brand" class="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1.5">Brand / Designer</label>
-            <input type="text" id="item-brand" placeholder="e.g. Uniqlo, Zara, Ralph Lauren..." class="w-full px-3.5 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-colors">
+            <label for="item-brand"
+              class="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1.5">Brand /
+              Designer</label>
+            <input type="text" id="item-brand" placeholder="e.g. Uniqlo, Zara, Ralph Lauren..."
+              class="w-full px-3.5 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-colors">
           </div>
         </div>
 
         <!-- Color Palette Picker & Season -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1.5">Primary Color</label>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1.5">Primary
+              Color</label>
             <div class="flex items-center gap-2">
-              <input type="color" id="item-color-hex" value="#1c1917" class="w-9 h-9 rounded-xl border border-stone-200 p-0.5 cursor-pointer bg-stone-50" onchange="syncColorName()">
-              <input type="text" id="item-color-name" placeholder="Color (e.g. Black, Navy, Ivory)" class="flex-1 px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:border-stone-900">
+              <input type="color" id="item-color-hex" value="#1c1917"
+                class="w-9 h-9 rounded-xl border border-stone-200 p-0.5 cursor-pointer bg-stone-50"
+                onchange="syncColorName()">
+              <input type="text" id="item-color-name" placeholder="Color (e.g. Black, Navy, Ivory)"
+                class="flex-1 px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:border-stone-900">
             </div>
           </div>
 
           <div>
-            <label for="item-season" class="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1.5">Season</label>
-            <select id="item-season" class="w-full px-3.5 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-colors cursor-pointer">
+            <label for="item-season"
+              class="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1.5">Season</label>
+            <select id="item-season"
+              class="w-full px-3.5 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-colors cursor-pointer">
               <option value="All Seasons">All Seasons</option>
               <option value="Spring">Spring</option>
               <option value="Summer">Summer</option>
@@ -940,20 +1129,29 @@
         <!-- Style Tags & Purchase Price (Optional for Cost-Per-Wear) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label for="item-tags" class="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1.5">Style Tags (Comma separated)</label>
-            <input type="text" id="item-tags" placeholder="e.g. Minimalist, Casual, Tailored, Silk..." class="w-full px-3.5 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-colors">
+            <label for="item-tags"
+              class="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1.5">Style Tags (Comma
+              separated)</label>
+            <input type="text" id="item-tags" placeholder="e.g. Minimalist, Casual, Tailored, Silk..."
+              class="w-full px-3.5 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-colors">
           </div>
 
           <div>
-            <label for="item-price" class="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1.5">Price / Value (₹)</label>
-            <input type="number" id="item-price" min="0" step="1" placeholder="Price in ₹ (e.g. 2499)" class="w-full px-3.5 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-colors">
+            <label for="item-price"
+              class="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1.5">Price / Value
+              (₹)</label>
+            <input type="number" id="item-price" min="0" step="1" placeholder="Price in ₹ (e.g. 2499)"
+              class="w-full px-3.5 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-colors">
           </div>
         </div>
 
         <!-- Modal Footer Actions -->
         <div class="pt-4 border-t border-stone-100 flex items-center justify-end gap-3">
-          <button type="button" onclick="closeItemModal()" class="px-4 py-2.5 rounded-xl border border-stone-200 text-xs font-semibold text-stone-600 hover:bg-stone-100 transition-colors">Cancel</button>
-          <button type="submit" class="px-6 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-stone-50 text-xs font-semibold shadow-md transition-all">Save Garment</button>
+          <button type="button" onclick="closeItemModal()"
+            class="px-4 py-2.5 rounded-xl border border-stone-200 text-xs font-semibold text-stone-600 hover:bg-stone-100 transition-colors">Cancel</button>
+          <button type="submit"
+            class="px-6 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-stone-50 text-xs font-semibold shadow-md transition-all">Save
+            Garment</button>
         </div>
       </form>
 
@@ -963,40 +1161,54 @@
   <!-- ========================================================================= -->
   <!-- MODAL 2: GARMENT DETAIL & WEAR HISTORY VIEW -->
   <!-- ========================================================================= -->
-  <div id="modal-detail" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto glass-backdrop">
-    <div class="relative w-full max-w-lg bg-white rounded-3xl shadow-float border border-stone-200/80 overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200">
-      
+  <div id="modal-detail"
+    class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto glass-backdrop">
+    <div
+      class="relative w-full max-w-lg bg-white rounded-3xl shadow-float border border-stone-200/80 overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200">
+
       <!-- Top Image & Badge Container -->
-      <div class="relative w-full h-64 sm:h-72 bg-stone-100 flex items-center justify-center overflow-hidden group select-none">
-        <img id="detail-image" src="" alt="Garment" class="w-full h-full object-contain p-4 transition-all duration-200">
-        
+      <div
+        class="relative w-full h-64 sm:h-72 bg-stone-100 flex items-center justify-center overflow-hidden group select-none">
+        <img id="detail-image" src="" alt="Garment"
+          class="w-full h-full object-contain p-4 transition-all duration-200">
+
         <!-- Image Nav Arrows (if multiple images) -->
-        <button id="detail-prev-img-btn" onclick="prevDetailImage(event)" class="hidden absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 hover:bg-white text-stone-800 backdrop-blur-sm flex items-center justify-center shadow-md transition-all active:scale-95 z-20" title="Previous photo">
+        <button id="detail-prev-img-btn" onclick="prevDetailImage(event)"
+          class="hidden absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 hover:bg-white text-stone-800 backdrop-blur-sm flex items-center justify-center shadow-md transition-all active:scale-95 z-20"
+          title="Previous photo">
           <i class="fa-solid fa-chevron-left text-xs"></i>
         </button>
-        <button id="detail-next-img-btn" onclick="nextDetailImage(event)" class="hidden absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 hover:bg-white text-stone-800 backdrop-blur-sm flex items-center justify-center shadow-md transition-all active:scale-95 z-20" title="Next photo">
+        <button id="detail-next-img-btn" onclick="nextDetailImage(event)"
+          class="hidden absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 hover:bg-white text-stone-800 backdrop-blur-sm flex items-center justify-center shadow-md transition-all active:scale-95 z-20"
+          title="Next photo">
           <i class="fa-solid fa-chevron-right text-xs"></i>
         </button>
 
         <!-- Photo Counter Badge (top-left) -->
-        <div id="detail-img-counter" class="hidden absolute top-3 left-3 px-2.5 py-1 bg-stone-900/80 backdrop-blur-md text-white rounded-full text-[11px] font-semibold shadow-sm flex items-center gap-1.5 z-20">
+        <div id="detail-img-counter"
+          class="hidden absolute top-3 left-3 px-2.5 py-1 bg-stone-900/80 backdrop-blur-md text-white rounded-full text-[11px] font-semibold shadow-sm flex items-center gap-1.5 z-20">
           <i class="fa-solid fa-images text-[10px] text-warm-gold"></i>
           <span id="detail-img-counter-text">1 / 1</span>
         </div>
 
         <!-- Close Button -->
-        <button onclick="closeDetailModal()" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 hover:bg-white text-stone-800 backdrop-blur-sm flex items-center justify-center shadow-md transition-colors z-20">
+        <button onclick="closeDetailModal()"
+          class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 hover:bg-white text-stone-800 backdrop-blur-sm flex items-center justify-center shadow-md transition-colors z-20">
           <i class="fa-solid fa-xmark text-sm"></i>
         </button>
 
         <!-- Category, Color & Season Floating Pill -->
         <div class="absolute bottom-3 left-3 flex items-center gap-1.5 flex-wrap z-20">
-          <span id="detail-category-badge" class="px-3 py-1 bg-stone-900/90 backdrop-blur-md text-stone-50 rounded-full text-xs font-semibold capitalize shadow-sm">Tops</span>
-          <span id="detail-color-badge" class="px-3 py-1 bg-white/90 backdrop-blur-md text-stone-800 rounded-full text-xs font-semibold shadow-sm flex items-center gap-1.5">
+          <span id="detail-category-badge"
+            class="px-3 py-1 bg-stone-900/90 backdrop-blur-md text-stone-50 rounded-full text-xs font-semibold capitalize shadow-sm">Tops</span>
+          <span id="detail-color-badge"
+            class="px-3 py-1 bg-white/90 backdrop-blur-md text-stone-800 rounded-full text-xs font-semibold shadow-sm flex items-center gap-1.5">
             <span id="detail-color-dot" class="w-2.5 h-2.5 rounded-full inline-block"></span>
             <span id="detail-color-text">Black</span>
           </span>
-          <span id="detail-season" class="px-2.5 py-1 bg-white/80 backdrop-blur-md text-stone-700 rounded-full text-xs font-semibold shadow-sm">All Seasons</span>
+          <span id="detail-season"
+            class="px-2.5 py-1 bg-white/80 backdrop-blur-md text-stone-700 rounded-full text-xs font-semibold shadow-sm">All
+            Seasons</span>
         </div>
       </div>
 
@@ -1008,7 +1220,8 @@
       <!-- Detail Info Body -->
       <div class="p-6 space-y-4">
         <div>
-          <span id="detail-brand" class="text-xs uppercase tracking-widest font-semibold text-warm-gold">Atelier Studio</span>
+          <span id="detail-brand" class="text-xs uppercase tracking-widest font-semibold text-warm-gold">Atelier
+            Studio</span>
           <h2 id="detail-title" class="font-serif text-2xl font-bold text-stone-900 mt-0.5">Classic Linen Blazer</h2>
           <div id="detail-tags" class="flex flex-wrap gap-1.5 mt-2"></div>
         </div>
@@ -1039,15 +1252,18 @@
 
         <!-- Action Buttons -->
         <div class="pt-3 border-t border-stone-100 flex items-center justify-between gap-3">
-          <button type="button" id="detail-delete-btn" class="px-4 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-xl transition-colors">
+          <button type="button" id="detail-delete-btn"
+            class="px-4 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-xl transition-colors">
             <i class="fa-regular fa-trash-can mr-1"></i> Delete Item
           </button>
-          
+
           <div class="flex items-center gap-2">
-            <button type="button" id="detail-quick-wear-btn" class="px-3.5 py-2 text-xs font-semibold bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-xl transition-colors">
+            <button type="button" id="detail-quick-wear-btn"
+              class="px-3.5 py-2 text-xs font-semibold bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-xl transition-colors">
               <i class="fa-solid fa-plus text-warm-gold mr-1"></i> Log Wear Today
             </button>
-            <button type="button" id="detail-edit-btn" class="px-4 py-2 text-xs font-semibold bg-stone-900 hover:bg-stone-800 text-stone-50 rounded-xl transition-colors shadow-sm">
+            <button type="button" id="detail-edit-btn"
+              class="px-4 py-2 text-xs font-semibold bg-stone-900 hover:bg-stone-800 text-stone-50 rounded-xl transition-colors shadow-sm">
               <i class="fa-solid fa-pen-to-square mr-1"></i> Edit
             </button>
           </div>
@@ -1060,15 +1276,19 @@
   <!-- ========================================================================= -->
   <!-- MODAL 3: PRESET SAMPLE CLOSET PICKER (Instant Cataloging) -->
   <!-- ========================================================================= -->
-  <div id="modal-presets" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto glass-backdrop">
-    <div class="relative w-full max-w-2xl bg-white rounded-3xl shadow-float border border-stone-200/80 overflow-hidden my-auto max-h-[85vh] flex flex-col animate-in fade-in zoom-in-95 duration-200">
-      
+  <div id="modal-presets"
+    class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto glass-backdrop">
+    <div
+      class="relative w-full max-w-2xl bg-white rounded-3xl shadow-float border border-stone-200/80 overflow-hidden my-auto max-h-[85vh] flex flex-col animate-in fade-in zoom-in-95 duration-200">
+
       <div class="px-6 py-4 border-b border-stone-100 flex items-center justify-between bg-stone-50/50">
         <div>
           <h3 class="font-serif text-lg font-bold text-stone-900">Curated Boutique Presets</h3>
-          <p class="text-xs text-stone-500">Select a high-fashion staple garment to instantly populate photo and metadata.</p>
+          <p class="text-xs text-stone-500">Select a high-fashion staple garment to instantly populate photo and
+            metadata.</p>
         </div>
-        <button onclick="closePresetPicker()" class="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 flex items-center justify-center transition-colors">
+        <button onclick="closePresetPicker()"
+          class="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 flex items-center justify-center transition-colors">
           <i class="fa-solid fa-xmark text-sm"></i>
         </button>
       </div>
@@ -1085,14 +1305,17 @@
   <!-- ========================================================================= -->
   <!-- MODAL 4: BACKUP & EXPORT / IMPORT -->
   <!-- ========================================================================= -->
-  <div id="modal-backup" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto glass-backdrop">
-    <div class="relative w-full max-w-md bg-white rounded-3xl shadow-float border border-stone-200/80 p-6 space-y-5 animate-in fade-in zoom-in-95 duration-200">
+  <div id="modal-backup"
+    class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto glass-backdrop">
+    <div
+      class="relative w-full max-w-md bg-white rounded-3xl shadow-float border border-stone-200/80 p-6 space-y-5 animate-in fade-in zoom-in-95 duration-200">
       <div class="flex items-center justify-between">
         <div>
           <h3 class="font-serif text-lg font-bold text-stone-900">Data Backup & Export</h3>
           <p class="text-xs text-stone-500">Transfer or save your wardrobe snapshot.</p>
         </div>
-        <button onclick="closeBackupModal()" class="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 flex items-center justify-center">
+        <button onclick="closeBackupModal()"
+          class="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 flex items-center justify-center">
           <i class="fa-solid fa-xmark text-sm"></i>
         </button>
       </div>
@@ -1100,8 +1323,10 @@
       <div class="space-y-3">
         <div class="p-4 bg-stone-50 rounded-2xl border border-stone-200">
           <h4 class="text-xs font-bold text-stone-900 uppercase tracking-wider mb-1">Export JSON Archive</h4>
-          <p class="text-xs text-stone-500 mb-3">Download a complete JSON file with all your garments and daily outfit logs.</p>
-          <button onclick="exportUserDataJSON()" class="w-full py-2.5 bg-stone-900 text-stone-50 text-xs font-semibold rounded-xl hover:bg-stone-800 transition-colors flex items-center justify-center gap-2">
+          <p class="text-xs text-stone-500 mb-3">Download a complete JSON file with all your garments and daily outfit
+            logs.</p>
+          <button onclick="exportUserDataJSON()"
+            class="w-full py-2.5 bg-stone-900 text-stone-50 text-xs font-semibold rounded-xl hover:bg-stone-800 transition-colors flex items-center justify-center gap-2">
             <i class="fa-solid fa-download"></i> Download Archive (.json)
           </button>
         </div>
@@ -1109,7 +1334,8 @@
         <div class="p-4 bg-stone-50 rounded-2xl border border-stone-200">
           <h4 class="text-xs font-bold text-stone-900 uppercase tracking-wider mb-1">Restore from Backup</h4>
           <p class="text-xs text-stone-500 mb-3">Import a previously saved ATELIER JSON file to restore items.</p>
-          <label class="w-full py-2.5 bg-white border border-stone-300 text-stone-800 text-xs font-semibold rounded-xl hover:bg-stone-100 transition-colors flex items-center justify-center gap-2 cursor-pointer">
+          <label
+            class="w-full py-2.5 bg-white border border-stone-300 text-stone-800 text-xs font-semibold rounded-xl hover:bg-stone-100 transition-colors flex items-center justify-center gap-2 cursor-pointer">
             <i class="fa-solid fa-upload"></i> Select Backup JSON File
             <input type="file" accept=".json" class="hidden" onchange="importUserDataJSON(event)">
           </label>
@@ -1121,13 +1347,16 @@
   <!-- ========================================================================= -->
   <!-- MODAL 4.5: ACCOUNT PROFILE & SWITCH USER -->
   <!-- ========================================================================= -->
-  <div id="modal-account" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto glass-backdrop">
-    <div class="relative w-full max-w-lg bg-white rounded-3xl shadow-float border border-stone-200/80 p-6 space-y-5 animate-in fade-in zoom-in-95 duration-200 my-auto">
-      
+  <div id="modal-account"
+    class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto glass-backdrop">
+    <div
+      class="relative w-full max-w-lg bg-white rounded-3xl shadow-float border border-stone-200/80 p-6 space-y-5 animate-in fade-in zoom-in-95 duration-200 my-auto">
+
       <!-- Header -->
       <div class="flex items-center justify-between border-b border-stone-100 pb-4">
         <div class="flex items-center gap-3">
-          <div id="account-modal-avatar" class="w-11 h-11 rounded-2xl bg-stone-900 text-warm-gold font-serif font-bold text-base flex items-center justify-center shadow-md">
+          <div id="account-modal-avatar"
+            class="w-11 h-11 rounded-2xl bg-stone-900 text-warm-gold font-serif font-bold text-base flex items-center justify-center shadow-md">
             SV
           </div>
           <div>
@@ -1136,7 +1365,8 @@
             <p id="account-modal-email" class="text-xs text-stone-500">sophia@example.com</p>
           </div>
         </div>
-        <button onclick="closeAccountModal()" class="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 flex items-center justify-center transition-colors">
+        <button onclick="closeAccountModal()"
+          class="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 flex items-center justify-center transition-colors">
           <i class="fa-solid fa-xmark text-sm"></i>
         </button>
       </div>
@@ -1160,26 +1390,32 @@
         </div>
 
         <!-- Edit Profile Form -->
-        <form id="account-edit-form" onsubmit="handleUpdateProfile(event)" class="space-y-3 bg-white p-4 rounded-2xl border border-stone-200">
+        <form id="account-edit-form" onsubmit="handleUpdateProfile(event)"
+          class="space-y-3 bg-white p-4 rounded-2xl border border-stone-200">
           <h4 class="text-xs font-bold uppercase tracking-wider text-stone-700">Update Profile Details</h4>
-          
+
           <div>
             <label class="block text-[11px] font-semibold text-stone-500 mb-1">Display Name</label>
-            <input type="text" id="edit-profile-name" required class="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:border-stone-900">
+            <input type="text" id="edit-profile-name" required
+              class="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:border-stone-900">
           </div>
 
           <div>
-            <label class="block text-[11px] font-semibold text-stone-500 mb-1">Change Password (leave blank to keep current)</label>
+            <label class="block text-[11px] font-semibold text-stone-500 mb-1">Change Password (leave blank to keep
+              current)</label>
             <div class="relative">
-              <input type="password" id="edit-profile-password" minlength="6" placeholder="New password (min. 6 chars)" class="w-full pl-3 pr-9 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:border-stone-900">
-              <button type="button" onclick="togglePasswordVisibility('edit-profile-password')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-stone-400 hover:text-stone-600">
+              <input type="password" id="edit-profile-password" minlength="6" placeholder="New password (min. 6 chars)"
+                class="w-full pl-3 pr-9 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:border-stone-900">
+              <button type="button" onclick="togglePasswordVisibility('edit-profile-password')"
+                class="absolute inset-y-0 right-0 pr-3 flex items-center text-stone-400 hover:text-stone-600">
                 <i class="fa-regular fa-eye text-xs" id="edit-profile-password-eye"></i>
               </button>
             </div>
           </div>
 
           <div class="pt-2 flex justify-end">
-            <button type="submit" class="px-4 py-2 bg-stone-900 hover:bg-stone-800 text-stone-50 text-xs font-semibold rounded-xl transition-all shadow-sm">
+            <button type="submit"
+              class="px-4 py-2 bg-stone-900 hover:bg-stone-800 text-stone-50 text-xs font-semibold rounded-xl transition-all shadow-sm">
               Save Changes
             </button>
           </div>
@@ -1188,14 +1424,32 @@
         <!-- Saved Accounts on this Device & Switch User -->
         <div class="space-y-2 pt-1">
           <div class="flex items-center justify-between">
-            <h4 class="text-xs font-bold uppercase tracking-wider text-stone-700">Saved Accounts on Device</h4>
-            <button type="button" onclick="promptAddNewAccount()" class="text-xs font-semibold text-warm-gold hover:text-stone-900 flex items-center gap-1">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-stone-700">Database Accounts on Server</h4>
+            <button type="button" onclick="promptAddNewAccount()"
+              class="text-xs font-semibold text-warm-gold hover:text-stone-900 flex items-center gap-1">
               <i class="fa-solid fa-user-plus text-[11px]"></i> Add / Switch Account
             </button>
           </div>
-          
+
           <div id="modal-accounts-list" class="space-y-2 max-h-44 overflow-y-auto pr-1">
             <!-- Dynamically populated accounts -->
+          </div>
+        </div>
+
+        <!-- Account Danger Zone: Permanent Database Deletion -->
+        <div class="pt-3 border-t border-stone-200/80 space-y-2">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-rose-700 flex items-center gap-1.5">
+            <i class="fa-solid fa-triangle-exclamation text-rose-500"></i> Account Danger Zone
+          </h4>
+          <div class="p-3 bg-rose-50/70 border border-rose-200/80 rounded-2xl flex items-center justify-between gap-3">
+            <div>
+              <p class="text-xs font-bold text-stone-900">Delete Account from Database</p>
+              <p class="text-[10px] text-stone-500">Permanently removes your account, garments, and outfit history from SQLite.</p>
+            </div>
+            <button type="button" onclick="confirmPermanentAccountDeletion()"
+              class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-xl shadow-xs transition-colors shrink-0">
+              Delete Account
+            </button>
           </div>
         </div>
 
@@ -1207,14 +1461,17 @@
   <!-- ========================================================================= -->
   <!-- MODAL 5: MOBILE CONNECT & QR CODE -->
   <!-- ========================================================================= -->
-  <div id="modal-mobile-connect" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto glass-backdrop">
-    <div class="relative w-full max-w-md bg-white rounded-3xl shadow-float border border-stone-200/80 p-6 space-y-5 animate-in fade-in zoom-in-95 duration-200 text-center">
+  <div id="modal-mobile-connect"
+    class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto glass-backdrop">
+    <div
+      class="relative w-full max-w-md bg-white rounded-3xl shadow-float border border-stone-200/80 p-6 space-y-5 animate-in fade-in zoom-in-95 duration-200 text-center">
       <div class="flex items-center justify-between">
         <div class="text-left">
           <span class="text-[10px] font-bold uppercase tracking-wider text-warm-gold">Cross-Device Access</span>
           <h3 class="font-serif text-lg font-bold text-stone-900">Open on Your Mobile Phone</h3>
         </div>
-        <button onclick="closeMobileConnectModal()" class="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 flex items-center justify-center">
+        <button onclick="closeMobileConnectModal()"
+          class="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 flex items-center justify-center">
           <i class="fa-solid fa-xmark text-sm"></i>
         </button>
       </div>
@@ -1222,17 +1479,23 @@
       <div class="p-4 bg-stone-50 rounded-2xl border border-stone-200 flex flex-col items-center justify-center">
         <!-- QR Code Container -->
         <div class="p-3 bg-white rounded-2xl shadow-sm border border-stone-200 inline-block mb-3">
-          <img id="mobile-qr-image" src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=https://ad543b18eeaea1.lhr.life/index.html" alt="Scan QR Code" class="w-48 h-48 rounded-xl object-contain mx-auto">
+          <img id="mobile-qr-image"
+            src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=https://4e688bb4eace96.lhr.life/index.html"
+            alt="Scan QR Code" class="w-48 h-48 rounded-xl object-contain mx-auto">
         </div>
         <p class="text-xs font-semibold text-stone-800">Scan with your Phone Camera</p>
-        <p class="text-[11px] text-stone-500 mt-0.5">Secure HTTPS Public Link (Works on Any Wi-Fi or Mobile 4G/5G anywhere).</p>
+        <p class="text-[11px] text-stone-500 mt-0.5">Secure HTTPS Public Link (Works on Any Wi-Fi or Mobile 4G/5G
+          anywhere).</p>
       </div>
 
       <div class="text-left space-y-2">
-        <label class="block text-[11px] font-semibold uppercase tracking-wider text-stone-500">Public Everywhere Link:</label>
+        <label class="block text-[11px] font-semibold uppercase tracking-wider text-stone-500">Public Everywhere
+          Link:</label>
         <div class="flex items-center gap-2">
-          <input type="text" id="mobile-url-input" readonly value="https://ad543b18eeaea1.lhr.life/index.html" class="flex-1 px-3 py-2 text-xs font-mono bg-stone-50 border border-stone-200 rounded-xl text-stone-800 focus:outline-none select-all">
-          <button onclick="copyMobileUrl()" class="px-3 py-2 bg-stone-900 text-stone-50 rounded-xl text-xs font-semibold hover:bg-stone-800 transition-colors flex items-center gap-1">
+          <input type="text" id="mobile-url-input" readonly value="https://4e688bb4eace96.lhr.life/index.html"
+            class="flex-1 px-3 py-2 text-xs font-mono bg-stone-50 border border-stone-200 rounded-xl text-stone-800 focus:outline-none select-all">
+          <button onclick="copyMobileUrl()"
+            class="px-3 py-2 bg-stone-900 text-stone-50 rounded-xl text-xs font-semibold hover:bg-stone-800 transition-colors flex items-center gap-1">
             <i class="fa-regular fa-copy"></i> Copy
           </button>
         </div>
@@ -1248,9 +1511,11 @@
   <!-- ========================================================================= -->
   <!-- MODAL 6: BATCH MULTI-GARMENT PHOTO IMPORTER -->
   <!-- ========================================================================= -->
-  <div id="modal-batch-import" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto glass-backdrop">
-    <div class="relative w-full max-w-3xl bg-white rounded-3xl shadow-float border border-stone-200/80 overflow-hidden my-auto max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 duration-200">
-      
+  <div id="modal-batch-import"
+    class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto glass-backdrop">
+    <div
+      class="relative w-full max-w-3xl bg-white rounded-3xl shadow-float border border-stone-200/80 overflow-hidden my-auto max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 duration-200">
+
       <!-- Header -->
       <div class="px-6 py-4 border-b border-stone-100 flex items-center justify-between bg-stone-50/60">
         <div class="flex items-center gap-3">
@@ -1259,10 +1524,12 @@
           </div>
           <div>
             <h3 class="font-serif text-lg font-bold text-stone-900">Batch Garment Importer</h3>
-            <p class="text-xs text-stone-500">Upload multiple clothing photos at once to quickly populate your wardrobe.</p>
+            <p class="text-xs text-stone-500">Upload multiple clothing photos at once to quickly populate your wardrobe.
+            </p>
           </div>
         </div>
-        <button onclick="closeBatchImportModal()" class="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 flex items-center justify-center transition-colors">
+        <button onclick="closeBatchImportModal()"
+          class="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 flex items-center justify-center transition-colors">
           <i class="fa-solid fa-xmark text-sm"></i>
         </button>
       </div>
@@ -1270,20 +1537,28 @@
       <!-- Body -->
       <div class="p-6 space-y-5 overflow-y-auto flex-1">
         <!-- Dropzone / Picker -->
-        <div id="batch-dropzone" class="border-2 border-dashed border-stone-300 rounded-2xl p-6 text-center cursor-pointer hover:border-stone-900 transition-colors bg-stone-50/50 group" onclick="document.getElementById('batch-file-input').click()" ondragover="handleBatchDragOver(event)" ondragleave="handleBatchDragLeave(event)" ondrop="handleBatchDrop(event)">
-          <div class="w-12 h-12 rounded-full bg-stone-200 text-stone-600 mx-auto flex items-center justify-center group-hover:scale-110 transition-transform mb-2">
+        <div id="batch-dropzone"
+          class="border-2 border-dashed border-stone-300 rounded-2xl p-6 text-center cursor-pointer hover:border-stone-900 transition-colors bg-stone-50/50 group"
+          onclick="document.getElementById('batch-file-input').click()" ondragover="handleBatchDragOver(event)"
+          ondragleave="handleBatchDragLeave(event)" ondrop="handleBatchDrop(event)">
+          <div
+            class="w-12 h-12 rounded-full bg-stone-200 text-stone-600 mx-auto flex items-center justify-center group-hover:scale-110 transition-transform mb-2">
             <i class="fa-solid fa-cloud-arrow-up text-xl"></i>
           </div>
           <p class="text-sm font-semibold text-stone-800">Select or Drag & Drop Multiple Garment Photos</p>
-          <p class="text-xs text-stone-400 mt-1">Pick 2, 5, 10, or 20 photos at once • Auto-optimizes quality & dimensions</p>
-          <input type="file" id="batch-file-input" accept="image/*" multiple class="hidden" onchange="handleBatchFiles(event)">
+          <p class="text-xs text-stone-400 mt-1">Pick 2, 5, 10, or 20 photos at once • Auto-optimizes quality &
+            dimensions</p>
+          <input type="file" id="batch-file-input" accept="image/*" multiple class="hidden"
+            onchange="handleBatchFiles(event)">
         </div>
 
         <!-- Batch Items Grid -->
         <div id="batch-items-container" class="hidden space-y-3">
           <div class="flex items-center justify-between">
-            <h4 class="text-xs font-bold uppercase tracking-wider text-stone-600" id="batch-count-title">Pending Garments (0)</h4>
-            <button type="button" onclick="document.getElementById('batch-file-input').click()" class="text-xs font-semibold text-warm-gold hover:text-stone-900 flex items-center gap-1">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-stone-600" id="batch-count-title">Pending
+              Garments (0)</h4>
+            <button type="button" onclick="document.getElementById('batch-file-input').click()"
+              class="text-xs font-semibold text-warm-gold hover:text-stone-900 flex items-center gap-1">
               <i class="fa-solid fa-plus"></i> Add More Photos
             </button>
           </div>
@@ -1295,8 +1570,10 @@
 
       <!-- Footer -->
       <div class="px-6 py-4 border-t border-stone-100 flex items-center justify-between bg-stone-50/40">
-        <button type="button" onclick="closeBatchImportModal()" class="px-4 py-2.5 rounded-xl border border-stone-200 text-xs font-semibold text-stone-600 hover:bg-stone-100 transition-colors">Cancel</button>
-        <button type="button" id="batch-import-submit-btn" onclick="saveBatchGarments()" disabled class="px-6 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 disabled:opacity-40 disabled:cursor-not-allowed text-stone-50 text-xs font-semibold shadow-md transition-all flex items-center gap-2">
+        <button type="button" onclick="closeBatchImportModal()"
+          class="px-4 py-2.5 rounded-xl border border-stone-200 text-xs font-semibold text-stone-600 hover:bg-stone-100 transition-colors">Cancel</button>
+        <button type="button" id="batch-import-submit-btn" onclick="saveBatchGarments()" disabled
+          class="px-6 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 disabled:opacity-40 disabled:cursor-not-allowed text-stone-50 text-xs font-semibold shadow-md transition-all flex items-center gap-2">
           <i class="fa-solid fa-check"></i>
           <span>Import All Garments</span>
         </button>
@@ -1355,7 +1632,24 @@
     };
 
     // --- CENTRAL REST API CLIENT (SQLITE DATABASE BACKEND) ---
-    const API_BASE = window.location.origin; // Dynamically binds to localhost, IP, or public HTTPS tunnel
+    function getApiBase() {
+      try {
+        if (window.location.protocol === 'file:' || window.location.origin === 'null' || !window.location.origin) {
+          return 'http://127.0.0.1:8000';
+        }
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+          // If loaded via Live Server or preview (port 5500, 3000, 5173), direct API to backend port 8000
+          if (window.location.port && window.location.port !== '8000') {
+            return `${window.location.protocol}//${window.location.hostname}:8000`;
+          }
+        }
+        return window.location.origin;
+      } catch (e) {
+        return 'http://127.0.0.1:8000';
+      }
+    }
+
+    const API_BASE = getApiBase();
 
     const AtelierAPI = {
       getToken() {
@@ -1374,16 +1668,19 @@
         };
 
         try {
-          const res = await fetch(`${API_BASE}${endpoint}`, {
+          const res = await fetch(`${getApiBase()}${endpoint}`, {
             ...options,
             headers
           });
           const data = await res.json().catch(() => ({}));
-          return { status: res.status, ok: res.ok, data };
+          return { status: res.status, ok: res.ok, data, isNetworkError: false };
         } catch (err) {
           console.warn(`API request to ${endpoint} failed:`, err);
-          return { status: 0, ok: false, data: null, error: err };
+          return { status: 0, ok: false, data: null, error: err, isNetworkError: true };
         }
+      },
+      async checkHealth() {
+        return await this.request('/api/health');
       },
       async register(name, email, password) {
         return await this.request('/api/register', {
@@ -1577,7 +1874,7 @@
     let currentUser = null;
     let userWardrobe = []; // list of garments { id, title, category, brand, colorHex, colorName, season, tags, price, image, createdAt, wearDates: [] }
     let userOutfitLogs = {}; // mapping 'YYYY-MM-DD' => { itemIds: [], notes: '', occasion: '', weather: '', rating: 5, updatedAt: '' }
-    
+
     // Active UI states
     let currentView = 'wardrobe'; // 'wardrobe', 'logger', 'calendar', 'analytics'
     let selectedCategory = 'all';
@@ -1680,7 +1977,7 @@
               });
             }
           }
-        } catch (e) {}
+        } catch (e) { }
       });
 
       const usersList = Array.from(usersMap.values());
@@ -1694,7 +1991,7 @@
       if (!userObj || !userObj.email) return false;
       const normEmail = userObj.email.trim().toLowerCase();
       const users = getAllSavedUsers();
-      
+
       const existingIdx = users.findIndex(u => u.email.trim().toLowerCase() === normEmail);
       const cleanObj = {
         id: userObj.id || ('user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4)),
@@ -1722,19 +2019,36 @@
       const users = getAllSavedUsers().filter(u => u.email.trim().toLowerCase() !== normEmail);
       SafeStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users));
       SafeStorage.setItem('atelier_users', JSON.stringify(users));
-      
+
       if (currentUser && currentUser.email.trim().toLowerCase() === normEmail) {
         handleLogout();
       } else {
         renderSavedAccountsList();
         renderModalAccountsList();
       }
-      showToast('Account removed from local list.', 'info');
+    }
+
+    async function updateDatabaseStatusPill() {
+      const pill = document.getElementById('db-status-pill');
+      if (!pill) return;
+      try {
+        const res = await AtelierAPI.checkHealth();
+        if (res.ok && res.data && res.data.status === 'ok') {
+          pill.className = 'flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 bg-emerald-100/80 px-2.5 py-0.5 rounded-full';
+          pill.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Connected (Port 8000)';
+          return true;
+        }
+      } catch (e) {}
+      pill.className = 'flex items-center gap-1.5 text-[11px] font-semibold text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full';
+      pill.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Offline (Run server.py)';
+      return false;
     }
 
     async function renderSavedAccountsList() {
       const container = document.getElementById('auth-saved-accounts');
       if (!container) return;
+
+      await updateDatabaseStatusPill();
 
       // Combine local cache with live server accounts directory
       let users = getAllSavedUsers();
@@ -1771,18 +2085,18 @@
       container.innerHTML = `
         <div class="flex items-center justify-between mb-2.5">
           <span class="text-xs font-bold uppercase tracking-wider text-stone-700 flex items-center gap-1.5">
-            <i class="fa-solid fa-server text-warm-gold text-xs"></i> Database Accounts (${users.length})
+            <i class="fa-solid fa-database text-warm-gold text-xs"></i> Database Accounts (${users.length})
           </span>
           <span class="text-[10px] text-stone-400">1-Click Sign In</span>
         </div>
         <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
           ${users.map(u => {
-            const initials = (u.name || u.email).substring(0, 2).toUpperCase();
-            const safeEmail = escapeHtml(u.email);
-            const safeName = escapeHtml(u.name || u.email.split('@')[0]);
-            const garmentCount = u.garmentCount !== undefined ? u.garmentCount : 0;
+        const initials = (u.name || u.email).substring(0, 2).toUpperCase();
+        const safeEmail = escapeHtml(u.email);
+        const safeName = escapeHtml(u.name || u.email.split('@')[0]);
+        const garmentCount = u.garmentCount !== undefined ? u.garmentCount : 0;
 
-            return `
+        return `
               <div class="flex items-center justify-between p-2.5 bg-white hover:bg-stone-50 rounded-2xl border border-stone-200/80 transition-all group shadow-2xs">
                 <div class="flex items-center gap-2.5 cursor-pointer flex-1 min-w-0" onclick="quickFillAccount('${safeEmail}')">
                   <div class="w-8 h-8 rounded-xl bg-stone-900 text-warm-gold font-serif font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">
@@ -1790,20 +2104,18 @@
                   </div>
                   <div class="min-w-0 flex-1">
                     <p class="text-xs font-bold text-stone-900 truncate group-hover:text-warm-gold transition-colors">${safeName}</p>
-                    <p class="text-[10px] text-stone-400 truncate">${safeEmail} • ${garmentCount} items</p>
+                    <p class="text-[10px] text-stone-400 truncate">${safeEmail} • ${garmentCount} items in DB</p>
                   </div>
                 </div>
                 <div class="flex items-center gap-1.5 shrink-0">
-                  <button type="button" onclick="quickFillAccount('${safeEmail}')" class="px-3 py-1 bg-stone-900 hover:bg-stone-800 text-stone-50 text-xs font-semibold rounded-lg shadow-2xs transition-all">
-                    Sign In
-                  </button>
-                  <button type="button" onclick="confirmDeleteAccount(event, '${safeEmail}')" title="Remove local shortcut" class="w-7 h-7 rounded-lg text-stone-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center text-xs transition-colors">
-                    <i class="fa-regular fa-trash-can"></i>
+                  <button type="button" onclick="quickFillAccount('${safeEmail}')" class="px-3.5 py-1.5 bg-stone-900 hover:bg-stone-800 text-stone-50 text-xs font-semibold rounded-xl shadow-2xs transition-all flex items-center gap-1">
+                    <span>Sign In</span>
+                    <i class="fa-solid fa-arrow-right text-[10px] opacity-70"></i>
                   </button>
                 </div>
               </div>
             `;
-          }).join('')}
+      }).join('')}
         </div>
       `;
     }
@@ -1813,7 +2125,7 @@
       const emailField = document.getElementById('auth-email');
       const passField = document.getElementById('auth-password');
       emailField.value = email;
-      
+
       const users = getAllSavedUsers();
       const user = users.find(u => u.email.trim().toLowerCase() === email.trim().toLowerCase());
       if (user && user.password) {
@@ -1826,10 +2138,27 @@
       }
     }
 
-    function confirmDeleteAccount(event, email) {
-      event.stopPropagation();
-      if (confirm(`Remove local shortcut for "${email}"? (Account remains preserved in central database).`)) {
-        removeUserAccount(email);
+    async function confirmPermanentAccountDeletion() {
+      if (!currentUser) return;
+      const confirmEmail = prompt(`DANGER: This will PERMANENTLY erase your account (${currentUser.email}) and all your wardrobe items from the SQLite database.\n\nTo confirm, please type your email address exactly:`);
+      if (!confirmEmail) return;
+
+      if (confirmEmail.trim().toLowerCase() !== currentUser.email.trim().toLowerCase()) {
+        showToast('Email did not match. Account deletion cancelled.', 'warning');
+        return;
+      }
+
+      try {
+        const res = await AtelierAPI.deleteAccount();
+        if (res.ok) {
+          showToast('Account permanently deleted from central database.', 'success');
+          removeUserAccount(currentUser.email);
+          handleLogout();
+        } else {
+          showToast((res.data && res.data.message) || 'Failed to delete account from database.', 'error');
+        }
+      } catch (err) {
+        showToast('Database server error while deleting account.', 'error');
       }
     }
 
@@ -1957,7 +2286,11 @@
           // 1. SIGN IN AGAINST SQLITE DATABASE
           const res = await AtelierAPI.login(emailInput, passInput);
           if (!res.ok) {
-            const msg = (res.data && res.data.message) || 'Account not found. Please verify your credentials or click "Create Account".';
+            if (res.isNetworkError || res.status === 0) {
+              showToast('Cannot connect to Database server. Please ensure python server.py is running on port 8000.', 'error');
+              return;
+            }
+            const msg = (res.data && res.data.message) || 'Account not found or password incorrect. Please verify your credentials or create an account.';
             showToast(msg, 'error');
             return;
           }
@@ -1979,8 +2312,12 @@
         } else {
           // 2. CREATE ACCOUNT WITH UNIQUE EMAIL CHECK IN DATABASE
           const res = await AtelierAPI.register(nameInput, emailInput, passInput);
-          
+
           if (!res.ok) {
+            if (res.isNetworkError || res.status === 0) {
+              showToast('Cannot connect to Database server. Please ensure python server.py is running on port 8000.', 'error');
+              return;
+            }
             if (res.status === 409 || (res.data && res.data.code === 'EMAIL_EXISTS')) {
               showToast(res.data.message || 'An account with this email already exists in the database. Please sign in.', 'warning');
               switchAuthTab('signin');
@@ -2022,7 +2359,7 @@
     async function loginWithDemoAccount() {
       const demoEmail = 'demo.stylist@atelier.fashion';
       const demoPass = 'demo_password_123';
-      
+
       try {
         const res = await AtelierAPI.login(demoEmail, demoPass);
         if (res.ok && res.data && res.data.user) {
@@ -2031,7 +2368,7 @@
           currentUser = { ...user, password: demoPass };
           saveUserAccount(currentUser);
           SafeStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(currentUser));
-          
+
           userWardrobe = Array.isArray(wardrobe) && wardrobe.length > 0 ? wardrobe : JSON.parse(JSON.stringify(CURATED_PRESETS));
           userOutfitLogs = outfitLogs || {};
           recalcWearCounts();
@@ -2082,7 +2419,7 @@
       document.getElementById('account-modal-avatar').textContent = initials;
       document.getElementById('account-modal-name').textContent = currentUser.name || 'Wardrobe Stylist';
       document.getElementById('account-modal-email').textContent = currentUser.email;
-      
+
       document.getElementById('account-stat-garments').textContent = userWardrobe.length;
       let totalWears = 0;
       userWardrobe.forEach(item => totalWears += (item.wearDates ? item.wearDates.length : 0));
@@ -2115,7 +2452,7 @@
     async function handleUpdateProfile(e) {
       e.preventDefault();
       if (!currentUser) return;
-      
+
       const newName = document.getElementById('edit-profile-name').value.trim();
       const newPass = document.getElementById('edit-profile-password').value;
 
@@ -2140,7 +2477,7 @@
 
       saveUserAccount(currentUser);
       SafeStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(currentUser));
-      
+
       // Update UI elements
       showMainApp();
       showToast('Profile updated in central database successfully!', 'success');
@@ -2171,7 +2508,7 @@
             }
           });
         }
-      } catch (e) {}
+      } catch (e) { }
 
       if (users.length <= 1) {
         listContainer.innerHTML = `<p class="text-[11px] text-stone-400 italic">No other accounts registered on this server.</p>`;
@@ -2265,7 +2602,7 @@
     function persistUserDataLocally() {
       const key = getUserStorageKey();
       if (!key) return;
-      
+
       const payload = {
         userId: currentUser.id,
         userEmail: currentUser.email,
@@ -2273,7 +2610,7 @@
         outfitLogs: userOutfitLogs,
         updatedAt: new Date().toISOString()
       };
-      
+
       try {
         SafeStorage.setItem(key, JSON.stringify(payload));
       } catch (e) {
@@ -2319,11 +2656,11 @@
 
     function loadDemoDataForCurrentUser() {
       userWardrobe = JSON.parse(JSON.stringify(CURATED_PRESETS));
-      
+
       // Add initial wear logs across recent 7 days
       userOutfitLogs = {};
       const today = new Date();
-      
+
       // Log for today
       const todayStr = formatDateToString(today);
       userOutfitLogs[todayStr] = {
@@ -2422,7 +2759,7 @@
       const count = userWardrobe.length;
       document.getElementById('nav-count-wardrobe').textContent = count;
       document.getElementById('banner-total-items').textContent = count;
-      
+
       let totalWears = 0;
       userWardrobe.forEach(item => totalWears += (item.wearDates ? item.wearDates.length : 0));
       document.getElementById('banner-total-logged').textContent = totalWears;
@@ -2473,7 +2810,7 @@
       const seasonFilter = document.getElementById('filter-season').value;
       const sortVal = document.getElementById('filter-sort').value;
       const clearBtn = document.getElementById('search-clear-btn');
-      
+
       if (search) clearBtn.classList.remove('hidden');
       else clearBtn.classList.add('hidden');
 
@@ -2481,7 +2818,7 @@
       let filtered = userWardrobe.filter(item => {
         // Category
         if (selectedCategory !== 'all' && item.category !== selectedCategory) return false;
-        
+
         // Color
         if (colorFilter !== 'all') {
           const itemColor = (item.colorName || '').toLowerCase();
@@ -3198,7 +3535,7 @@
 
       try {
         const compressedList = await Promise.all(files.map(f => compressImageFile(f)));
-        
+
         compressedList.forEach((dataUrl, idx) => {
           const file = files[idx];
           let rawName = file.name ? file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ') : '';
@@ -3329,7 +3666,7 @@
 
       userWardrobe = newGarments.concat(userWardrobe);
       persistUserData();
-      
+
       const count = newGarments.length;
       closeBatchImportModal();
       renderActiveView();
@@ -3390,7 +3727,7 @@
       // Range text
       const endSunday = new Date(startMonday);
       endSunday.setDate(startMonday.getDate() + 6);
-      document.getElementById('week-strip-range').textContent = 
+      document.getElementById('week-strip-range').textContent =
         `${startMonday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${endSunday.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
 
       let daysHtml = '';
@@ -3404,8 +3741,8 @@
         const dayLetter = d.toLocaleDateString('en-US', { weekday: 'short' });
         const dayNumber = d.getDate();
 
-        let activeClasses = isActive 
-          ? 'bg-stone-900 text-stone-50 shadow-md ring-2 ring-stone-900 ring-offset-2' 
+        let activeClasses = isActive
+          ? 'bg-stone-900 text-stone-50 shadow-md ring-2 ring-stone-900 ring-offset-2'
           : 'bg-stone-50 hover:bg-stone-100 text-stone-700 border border-stone-200/70';
 
         daysHtml += `
@@ -3427,7 +3764,7 @@
     function renderActiveDateWorkspace() {
       const todayFormatted = getTodayFormatted();
       const isToday = (activeLoggerDate === todayFormatted);
-      
+
       document.getElementById('ootd-day-badge').textContent = isToday ? 'Today' : (activeLoggerDate > todayFormatted ? 'Planned' : 'Past Entry');
       document.getElementById('ootd-full-date-title').textContent = formatHumanDate(activeLoggerDate);
 
@@ -3618,7 +3955,7 @@
       recalcWearCounts();
       persistUserData();
       showToast('Garment logged to Today’s OOTD!', 'success');
-      
+
       triggerConfetti({ particleCount: 35, spread: 60, origin: { y: 0.8 } });
       renderActiveView();
     }
@@ -3673,7 +4010,7 @@
 
       recalcWearCounts();
       persistUserData();
-      
+
       triggerConfetti({
         particleCount: 80,
         spread: 70,
@@ -3773,7 +4110,7 @@
     function renderAnalyticsView() {
       const totalGarments = userWardrobe.length;
       const loggedDays = Object.keys(userOutfitLogs).filter(d => userOutfitLogs[d]?.itemIds?.length > 0).length;
-      
+
       let wornGarmentCount = 0;
       let totalWears = 0;
       userWardrobe.forEach(item => {
@@ -3911,12 +4248,13 @@
     }
 
     // =========================================================================
-    // MODAL 5 LOGIC: MOBILE PHONE CONNECT & QR CODE
+    // MODAL 5 LOGIC: MOBI
+    // LE PHONE CONNECT & QR CODE
     // =========================================================================
     function openMobileConnectModal() {
       const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
-      const networkUrl = isLocal 
-        ? 'https://ad543b18eeaea1.lhr.life/index.html'
+      const networkUrl = isLocal
+        ? 'https://4e688bb4eace96.lhr.life/index.html'
         : window.location.href;
 
       const input = document.getElementById('mobile-url-input');
@@ -3989,10 +4327,10 @@
       const container = document.getElementById('toast-container');
       if (!container) return;
       const toast = document.createElement('div');
-      
+
       let icon = 'fa-info-circle text-stone-500';
       let border = 'border-stone-200';
-      
+
       if (type === 'success') {
         icon = 'fa-check-circle text-emerald-500';
         border = 'border-emerald-200';
@@ -4014,7 +4352,7 @@
       `;
 
       container.appendChild(toast);
-      
+
       // Animate in
       requestAnimationFrame(() => {
         toast.classList.remove('translate-y-2', 'opacity-0');
@@ -4062,4 +4400,5 @@
     });
   </script>
 </body>
+
 </html>
