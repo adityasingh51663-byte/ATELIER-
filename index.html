@@ -1781,6 +1781,48 @@
         </div>
       </div>
 
+      <!-- Gmail SMTP Quick Setup & Testing Accordion -->
+      <div class="border-t border-stone-100 bg-stone-50/70 p-4">
+        <button type="button" onclick="toggleSmtpSetupAccordion()"
+          class="w-full flex items-center justify-between text-xs font-semibold text-stone-600 hover:text-stone-900 transition-colors">
+          <span class="flex items-center gap-2">
+            <i class="fa-solid fa-envelope-circle-check text-warm-gold"></i>
+            <span>Gmail Delivery Setup & Diagnostic</span>
+          </span>
+          <span id="smtp-setup-toggle-icon" class="text-[10px] text-stone-400 font-mono">Setup ▾</span>
+        </button>
+
+        <div id="smtp-setup-container" class="hidden mt-3 space-y-2.5 pt-2 border-t border-stone-200/60">
+          <div class="p-2.5 bg-blue-50/80 border border-blue-200 rounded-xl text-[11px] text-blue-950 leading-relaxed">
+            <p class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-info text-blue-600"></i> How to enable real Gmail delivery:</p>
+            <p class="mt-1 text-blue-900">
+              1. Enable 2-Step Verification on Google.<br>
+              2. Generate a 16-char App Password at <a href="https://myaccount.google.com/apppasswords" target="_blank" class="underline font-bold text-blue-700 hover:text-blue-900">myaccount.google.com/apppasswords ↗</a><br>
+              3. Enter it below and click <strong>Test & Save</strong>.
+            </p>
+          </div>
+
+          <div>
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-stone-500 mb-1">Your Sender Gmail Address</label>
+            <input type="email" id="setup-smtp-user" placeholder="your.sender@gmail.com"
+              class="w-full px-3 py-1.5 text-xs bg-white border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-900/10">
+          </div>
+
+          <div>
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-stone-500 mb-1">16-Character Google App Password</label>
+            <input type="password" id="setup-smtp-pass" placeholder="xxxx xxxx xxxx xxxx"
+              class="w-full px-3 py-1.5 text-xs bg-white border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-900/10">
+          </div>
+
+          <button type="button" id="smtp-test-btn" onclick="testAndSaveSmtpSettings()"
+            class="w-full py-2 bg-stone-900 hover:bg-stone-800 text-stone-50 rounded-xl text-xs font-semibold shadow-xs transition-all flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-paper-plane text-[10px]"></i>
+            <span id="smtp-test-text">Test & Save Gmail Connection</span>
+          </button>
+          <p id="smtp-test-status" class="hidden text-[11px] font-medium text-center"></p>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -2045,6 +2087,21 @@
         return await this.request('/api/auth/google', {
           method: 'POST',
           body: JSON.stringify(googleData)
+        });
+      },
+      async getSmtpStatus() {
+        return await this.request('/api/auth/smtp-status');
+      },
+      async configureSmtp(smtpData) {
+        return await this.request('/api/auth/smtp-config', {
+          method: 'POST',
+          body: JSON.stringify(smtpData)
+        });
+      },
+      async testSmtp(smtpData) {
+        return await this.request('/api/auth/smtp-test', {
+          method: 'POST',
+          body: JSON.stringify(smtpData)
         });
       }
     };
@@ -5196,7 +5253,13 @@
           setTimeout(() => codeInput.focus(), 150);
         }
 
-        showToast(`✨ Verification code sent to ${masked}! Please check your Gmail.`, 'success');
+        if (res.data && res.data.smtpConfigured === false) {
+          showToast('⚠️ Gmail Sender not configured yet. Use the "Gmail Delivery Setup" tool below to connect your inbox.', 'warning');
+          toggleSmtpSetupAccordion(true);
+        } else {
+          showToast(`✨ Verification code dispatched to ${masked}! Please check your Gmail.`, 'success');
+        }
+
         switchForgotStep(2);
       } catch (err) {
         console.error('Forgot password step 1 error:', err);
@@ -5204,6 +5267,79 @@
       } finally {
         sendBtn.disabled = false;
         sendText.textContent = originalText;
+      }
+    }
+
+    function toggleSmtpSetupAccordion(forceOpen = null) {
+      const container = document.getElementById('smtp-setup-container');
+      const icon = document.getElementById('smtp-setup-toggle-icon');
+      if (!container) return;
+      const willOpen = forceOpen !== null ? forceOpen : container.classList.contains('hidden');
+      if (willOpen) {
+        container.classList.remove('hidden');
+        if (icon) icon.textContent = 'Hide ▴';
+        const userField = document.getElementById('setup-smtp-user');
+        if (userField && !userField.value) {
+          userField.value = (document.getElementById('forgot-email').value || document.getElementById('auth-email').value || '').trim();
+        }
+      } else {
+        container.classList.add('hidden');
+        if (icon) icon.textContent = 'Setup ▾';
+      }
+    }
+
+    async function testAndSaveSmtpSettings() {
+      const user = (document.getElementById('setup-smtp-user').value || '').trim();
+      const pass = (document.getElementById('setup-smtp-pass').value || '').trim();
+      const statusEl = document.getElementById('smtp-test-status');
+      const btn = document.getElementById('smtp-test-btn');
+      const btnText = document.getElementById('smtp-test-text');
+      const origText = btnText.textContent;
+
+      if (!user || !pass) {
+        showToast('Please enter both your Gmail address and 16-character Google App Password.', 'warning');
+        return;
+      }
+
+      try {
+        btn.disabled = true;
+        btnText.textContent = 'Connecting to Gmail...';
+        if (statusEl) {
+          statusEl.className = 'text-[11px] font-medium text-stone-500 text-center';
+          statusEl.textContent = 'Testing connection with smtp.gmail.com:587...';
+          statusEl.classList.remove('hidden');
+        }
+
+        const res = await AtelierAPI.testSmtp({
+          user,
+          pass,
+          host: 'smtp.gmail.com',
+          port: 587,
+          toEmail: user
+        });
+
+        if (res.ok) {
+          if (statusEl) {
+            statusEl.className = 'text-[11px] font-bold text-emerald-600 text-center';
+            statusEl.textContent = '✓ Gmail connected! Test email sent to ' + user;
+          }
+          showToast('✨ Gmail SMTP configured! Test email sent to your inbox.', 'success');
+        } else {
+          const errMsg = (res.data && res.data.message) || 'Failed to authenticate with Gmail.';
+          if (statusEl) {
+            statusEl.className = 'text-[11px] font-semibold text-rose-600 text-center';
+            statusEl.textContent = errMsg;
+          }
+          showToast(errMsg, 'error');
+        }
+      } catch (err) {
+        if (statusEl) {
+          statusEl.className = 'text-[11px] font-semibold text-rose-600 text-center';
+          statusEl.textContent = 'Connection test failed. Please verify your internet and credentials.';
+        }
+      } finally {
+        btn.disabled = false;
+        btnText.textContent = origText;
       }
     }
 
