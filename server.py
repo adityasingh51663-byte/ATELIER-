@@ -23,6 +23,9 @@ DB_FILE = os.path.join(BASE_DIR, 'atelier.db')
 BACKUP_DIR = os.path.join(BASE_DIR, 'backups')
 LATEST_VAULT_FILE = os.path.join(BACKUP_DIR, 'atelier_auto_vault.json')
 
+# In-memory storage for active password reset challenges { email: { code, expires_at } }
+RESET_CODES = {}
+
 # Ensure working directory is workspace root for static files
 os.chdir(BASE_DIR)
 
@@ -674,6 +677,196 @@ class AtelierRequestHandler(http.server.SimpleHTTPRequestHandler):
                     'name': user_row['name'],
                     'email': user_row['email'],
                     'createdAt': user_row['created_at']
+                },
+                'wardrobe': wardrobe,
+                'outfitLogs': outfit_logs
+            })
+            return
+
+        # --- FORGOT PASSWORD - STEP 1 (REQUEST CODE) ---
+        if path == '/api/auth/forgot-password':
+            data = self.read_json_body() or {}
+            email = (data.get('email') or '').strip().lower()
+            if not email:
+                self.send_json_response({'success': False, 'message': 'Please provide a valid email address.'}, 400)
+                return
+
+            with get_db() as conn:
+                cursor = conn.cursor()
+                cursor.execute('SELECT id, name, email FROM users WHERE email = ?', (email,))
+                user_row = cursor.fetchone()
+
+            # If not in SQLite, check if user exists in backup vault
+            if not user_row and os.path.exists(LATEST_VAULT_FILE):
+                try:
+                    with open(LATEST_VAULT_FILE, 'r', encoding='utf-8') as f:
+                        vdata = json.load(f)
+                    for bu in vdata.get('users', []):
+                        if (bu.get('email') or '').strip().lower() == email:
+                            user_row = bu
+                            break
+                except Exception:
+                    pass
+
+            if not user_row:
+                self.send_json_response({
+                    'success': False,
+                    'code': 'USER_NOT_FOUND',
+                    'message': f'No Atelier account found with "{email}". Please check your email or create an account.'
+                }, 404)
+                return
+
+            # Generate 6-digit secure numeric verification code
+            code = str(secrets.randbelow(900000) + 100000)
+            RESET_CODES[email] = {
+                'code': code,
+                'expires_at': time.time() + 900 # 15 mins
+            }
+
+            user_name = user_row['name'] if isinstance(user_row, dict) or hasattr(user_row, '__getitem__') else email.split('@')[0]
+            print(f"[Auth] Password reset code generated for {email}: {code}", flush=True)
+            self.send_json_response({
+                'success': True,
+                'message': f'Verification code generated for {email}. Enter the 6-digit code to set a new password.',
+                'code': code,
+                'email': email,
+                'userName': user_name
+            })
+            return
+
+        # --- FORGOT PASSWORD - STEP 2 (VERIFY CODE & SET NEW PASSWORD) ---
+        if path == '/api/auth/reset-password':
+            data = self.read_json_body() or {}
+            email = (data.get('email') or '').strip().lower()
+            code = (str(data.get('code') or '')).strip()
+            new_password = data.get('newPassword') or ''
+
+            if not email or not code or not new_password:
+                self.send_json_response({'success': False, 'message': 'Missing email, verification code, or new password.'}, 400)
+                return
+
+            if len(new_password) < 6:
+                self.send_json_response({'success': False, 'message': 'Password must be at least 6 characters long.'}, 400)
+                return
+
+            challenge = RESET_CODES.get(email)
+            if not challenge:
+                self.send_json_response({'success': False, 'message': 'No active reset request found for this email. Please request a new code.'}, 400)
+                return
+
+            if time.time() > challenge['expires_at']:
+                RESET_CODES.pop(email, None)
+                self.send_json_response({'success': False, 'message': 'Verification code has expired. Please request a new code.'}, 400)
+                return
+
+            if challenge['code'] != code:
+                self.send_json_response({'success': False, 'message': 'Invalid verification code. Please check and try again.'}, 400)
+                return
+
+            # Code verified! Hash new password and update in database & vault
+            pwd_hash, salt = hash_password(new_password)
+            now_iso = get_now_iso()
+
+            with get_db() as conn:
+                cursor = conn.cursor()
+                cursor.execute('SELECT id FROM users WHERE email = ?', (email,))
+                row = cursor.fetchone()
+
+                if row:
+                    cursor.execute('UPDATE users SET password_hash = ?, salt = ?, updated_at = ? WHERE email = ?',
+                                   (pwd_hash, salt, now_iso, email))
+                    cursor.execute('DELETE FROM sessions WHERE user_id = ?', (row['id'],))
+                else:
+                    # Self-heal user if was only in vault
+                    uid = 'user_' + secrets.token_hex(8)
+                    cursor.execute('''
+                        INSERT INTO users (id, name, email, password_hash, salt, created_at, updated_at)
+                        VALUES (?, ?, ?, ?, ?, ?, ?)
+                        ON CONFLICT(id) DO UPDATE SET
+                            password_hash = excluded.password_hash,
+                            salt = excluded.salt,
+                            updated_at = excluded.updated_at
+                    ''', (uid, email.split('@')[0], email, pwd_hash, salt, now_iso, now_iso))
+                    cursor.execute('''
+                        INSERT INTO user_data (user_id, wardrobe_json, outfit_logs_json, updated_at)
+                        VALUES (?, ?, ?, ?)
+                        ON CONFLICT(user_id) DO NOTHING
+                    ''', (uid, '[]', '{}', now_iso))
+                conn.commit()
+
+            RESET_CODES.pop(email, None)
+            save_auto_backup(f"password_reset_{email}")
+
+            print(f"[Auth] Password successfully reset and secured for: {email}", flush=True)
+            self.send_json_response({
+                'success': True,
+                'message': 'Password has been reset successfully! You can now sign in with your new password.'
+            })
+            return
+
+        # --- GOOGLE SIGN IN / AUTO-REGISTRATION ---
+        if path == '/api/auth/google':
+            data = self.read_json_body() or {}
+            email = (data.get('email') or '').strip().lower()
+            name = (data.get('name') or '').strip() or (email.split('@')[0] if email else 'Google Stylist')
+            picture = data.get('picture') or ''
+            google_id = data.get('googleId') or secrets.token_hex(8)
+
+            if not email or '@' not in email:
+                self.send_json_response({'success': False, 'message': 'Valid Google email is required.'}, 400)
+                return
+
+            now_iso = get_now_iso()
+
+            with get_db() as conn:
+                cursor = conn.cursor()
+                cursor.execute('SELECT id, name, email, created_at FROM users WHERE email = ?', (email,))
+                user_row = cursor.fetchone()
+
+                if not user_row:
+                    # Auto-register new Google user
+                    user_id = 'user_g_' + secrets.token_hex(6)
+                    pwd_hash, salt = hash_password(f"google_oauth_{google_id}_{secrets.token_hex(8)}")
+
+                    cursor.execute('''
+                        INSERT INTO users (id, name, email, password_hash, salt, created_at, updated_at)
+                        VALUES (?, ?, ?, ?, ?, ?, ?)
+                    ''', (user_id, name, email, pwd_hash, salt, now_iso, now_iso))
+
+                    cursor.execute('''
+                        INSERT INTO user_data (user_id, wardrobe_json, outfit_logs_json, updated_at)
+                        VALUES (?, ?, ?, ?)
+                    ''', (user_id, '[]', '{}', now_iso))
+
+                    wardrobe = []
+                    outfit_logs = {}
+                    print(f"[Auth] Registered new account via Google Sign-In: {email} ({name})", flush=True)
+                else:
+                    user_id = user_row['id']
+                    name = user_row['name'] or name
+                    cursor.execute('SELECT wardrobe_json, outfit_logs_json FROM user_data WHERE user_id = ?', (user_id,))
+                    ud_row = cursor.fetchone()
+                    wardrobe = json.loads(ud_row['wardrobe_json']) if ud_row else []
+                    outfit_logs = json.loads(ud_row['outfit_logs_json']) if ud_row else {}
+                    print(f"[Auth] Signed in existing user via Google Sign-In: {email}", flush=True)
+
+                session_token = secrets.token_hex(24)
+                cursor.execute('INSERT INTO sessions (token, user_id, created_at) VALUES (?, ?, ?)', (session_token, user_id, now_iso))
+                conn.commit()
+
+            save_auto_backup(f"google_auth_{email}")
+
+            self.send_json_response({
+                'success': True,
+                'message': f'Signed in with Google as {name}!',
+                'token': session_token,
+                'user': {
+                    'id': user_id,
+                    'name': name,
+                    'email': email,
+                    'picture': picture,
+                    'isGoogleAuth': True,
+                    'createdAt': now_iso
                 },
                 'wardrobe': wardrobe,
                 'outfitLogs': outfit_logs
