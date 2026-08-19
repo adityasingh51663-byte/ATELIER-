@@ -14,6 +14,9 @@ import sys
 import threading
 import time
 import glob
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from urllib.parse import urlparse, parse_qs
 from datetime import datetime, timezone
 
@@ -22,6 +25,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_FILE = os.path.join(BASE_DIR, 'atelier.db')
 BACKUP_DIR = os.path.join(BASE_DIR, 'backups')
 LATEST_VAULT_FILE = os.path.join(BACKUP_DIR, 'atelier_auto_vault.json')
+EMAIL_CONFIG_FILE = os.path.join(BASE_DIR, 'email_config.json')
 
 # In-memory storage for active password reset challenges { email: { code, expires_at } }
 RESET_CODES = {}
@@ -31,6 +35,136 @@ os.chdir(BASE_DIR)
 
 def get_now_iso():
     return datetime.now(timezone.utc).isoformat()
+
+# --- EMAIL DISPATCH & SMTP CONFIGURATION ---
+def get_smtp_config():
+    config = {
+        'host': os.environ.get('SMTP_HOST', 'smtp.gmail.com'),
+        'port': int(os.environ.get('SMTP_PORT', 587)),
+        'user': os.environ.get('SMTP_USER', ''),
+        'pass': os.environ.get('SMTP_PASS', ''),
+        'sender_name': 'ATELIER Security'
+    }
+    if os.path.exists(EMAIL_CONFIG_FILE):
+        try:
+            with open(EMAIL_CONFIG_FILE, 'r', encoding='utf-8') as f:
+                saved = json.load(f)
+                config.update(saved)
+        except Exception as e:
+            print(f"[Email Config Warning] Could not read {EMAIL_CONFIG_FILE}: {e}", flush=True)
+    return config
+
+def save_smtp_config(host, port, user, password, sender_name='ATELIER Security'):
+    data = {
+        'host': host,
+        'port': int(port),
+        'user': user,
+        'pass': password,
+        'sender_name': sender_name,
+        'updated_at': get_now_iso()
+    }
+    with open(EMAIL_CONFIG_FILE, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=2)
+    return data
+
+def mask_email(email):
+    if not email or '@' not in email:
+        return 'your email'
+    parts = email.split('@')
+    name_part = parts[0]
+    domain_part = parts[1]
+    if len(name_part) <= 3:
+        masked_name = name_part[0] + '***'
+    else:
+        masked_name = name_part[:2] + '***' + name_part[-2:]
+    return f"{masked_name}@{domain_part}"
+
+def send_verification_email(to_email, code, user_name="Stylist"):
+    config = get_smtp_config()
+    smtp_user = config.get('user', '').strip()
+    smtp_pass = config.get('pass', '').strip()
+    smtp_host = config.get('host', 'smtp.gmail.com').strip()
+    smtp_port = int(config.get('port', 587))
+    sender_name = config.get('sender_name', 'ATELIER Security')
+
+    # Construct HTML email body
+    html_body = f"""<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f7f6f2; margin: 0; padding: 24px; color: #1c1917; }}
+    .card {{ max-width: 520px; margin: 0 auto; background: #ffffff; border-radius: 20px; border: 1px solid #e7e5e4; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }}
+    .header {{ background: #1c1917; padding: 28px 24px; text-align: center; color: #f5f5f4; }}
+    .logo {{ font-size: 24px; font-weight: bold; letter-spacing: 2px; color: #ffffff; }}
+    .subtitle {{ font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #d4af37; margin-top: 4px; font-weight: 600; }}
+    .content {{ padding: 32px 28px; }}
+    .greeting {{ font-size: 16px; font-weight: bold; color: #1c1917; margin-bottom: 12px; }}
+    .desc {{ font-size: 14px; line-height: 1.6; color: #57534e; margin-bottom: 24px; }}
+    .code-container {{ background: #faf8f5; border: 2px dashed #d4af37; border-radius: 16px; padding: 20px; text-align: center; margin: 24px 0; }}
+    .code {{ font-family: 'SF Mono', Consolas, Monaco, monospace; font-size: 36px; font-weight: 800; letter-spacing: 8px; color: #1c1917; margin: 0; }}
+    .code-label {{ font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: #a8a29e; margin-top: 6px; font-weight: 600; }}
+    .warning {{ font-size: 12px; color: #78716c; line-height: 1.5; background: #f5f5f4; padding: 12px 16px; border-radius: 12px; margin-top: 24px; }}
+    .footer {{ padding: 20px; text-align: center; font-size: 11px; color: #a8a29e; border-top: 1px solid #f5f5f4; }}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <div class="logo">ATELIER</div>
+      <div class="subtitle">Digital Wardrobe &bull; Security</div>
+    </div>
+    <div class="content">
+      <div class="greeting">Hello {user_name},</div>
+      <div class="desc">
+        We received a request to reset the password for your ATELIER account (<strong>{to_email}</strong>). Use the verification code below to complete your password reset:
+      </div>
+      <div class="code-container">
+        <div class="code">{code}</div>
+        <div class="code-label">Verification Code &bull; Valid for 15 Minutes</div>
+      </div>
+      <div class="warning">
+        &#128274; <strong>Security Notice:</strong> If you did not request this code, please ignore this email or check your account security. Never share this code with anyone.
+      </div>
+    </div>
+    <div class="footer">
+      &copy; ATELIER Digital Wardrobe System &bull; Automated Security Service
+    </div>
+  </div>
+</body>
+</html>"""
+
+    if not smtp_user or not smtp_pass:
+        print(f"[Email Delivery Notice] SMTP credentials not set in email_config.json. Code for {to_email} generated securely on server: {code}", flush=True)
+        return False, "SMTP credentials not configured"
+
+    try:
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = f"Your ATELIER Password Reset Code: {code}"
+        msg["From"] = f"{sender_name} <{smtp_user}>"
+        msg["To"] = to_email
+
+        text_fallback = f"Hello {user_name},\n\nYour ATELIER password reset code is: {code}\n\nThis code is valid for 15 minutes. If you did not request this, please ignore this email."
+        msg.attach(MIMEText(text_fallback, "plain"))
+        msg.attach(MIMEText(html_body, "html"))
+
+        if smtp_port == 465:
+            with smtplib.SMTP_SSL(smtp_host, smtp_port, timeout=12) as server_smtp:
+                server_smtp.login(smtp_user, smtp_pass)
+                server_smtp.sendmail(smtp_user, [to_email], msg.as_string())
+        else:
+            with smtplib.SMTP(smtp_host, smtp_port, timeout=12) as server_smtp:
+                server_smtp.ehlo()
+                server_smtp.starttls()
+                server_smtp.ehlo()
+                server_smtp.login(smtp_user, smtp_pass)
+                server_smtp.sendmail(smtp_user, [to_email], msg.as_string())
+
+        print(f"[Email Delivery] Successfully sent verification code email to {to_email} via {smtp_host}:{smtp_port}", flush=True)
+        return True, None
+    except Exception as e:
+        print(f"[Email Delivery Error] Failed to send email to {to_email}: {e}", flush=True)
+        return False, str(e)
 
 # --- DATABASE MANAGEMENT ---
 def get_db():
@@ -437,6 +571,20 @@ class AtelierRequestHandler(http.server.SimpleHTTPRequestHandler):
             })
             return
 
+        # SMTP CONFIG STATUS
+        if path == '/api/auth/smtp-status':
+            s_cfg = get_smtp_config()
+            configured = bool(s_cfg.get('user') and s_cfg.get('pass'))
+            self.send_json_response({
+                'success': True,
+                'configured': configured,
+                'host': s_cfg.get('host', 'smtp.gmail.com'),
+                'port': s_cfg.get('port', 587),
+                'user': mask_email(s_cfg.get('user', '')) if s_cfg.get('user') else 'Not configured',
+                'senderName': s_cfg.get('sender_name', 'ATELIER Security')
+            })
+            return
+
         # BACKUP EXPORT (Full Vault Download)
         if path == '/api/backup/export':
             snapshot = save_auto_backup("manual_export")
@@ -724,13 +872,40 @@ class AtelierRequestHandler(http.server.SimpleHTTPRequestHandler):
             }
 
             user_name = user_row['name'] if isinstance(user_row, dict) or hasattr(user_row, '__getitem__') else email.split('@')[0]
-            print(f"[Auth] Password reset code generated for {email}: {code}", flush=True)
+            masked_email = mask_email(email)
+            
+            # Send verification email directly to user's real email inbox
+            sent, err = send_verification_email(email, code, user_name)
+
+            # ZERO-KNOWLEDGE API RESPONSE: Code is NEVER sent back to client
             self.send_json_response({
                 'success': True,
-                'message': f'Verification code generated for {email}. Enter the 6-digit code to set a new password.',
-                'code': code,
+                'message': f'A 6-digit verification code has been sent to your email ({masked_email}). Please check your Inbox and Spam folder.',
                 'email': email,
+                'maskedEmail': masked_email,
+                'emailSent': sent,
                 'userName': user_name
+            })
+            return
+
+        # --- CONFIGURE SMTP EMAIL CREDENTIALS ---
+        if path == '/api/auth/smtp-config':
+            data = self.read_json_body() or {}
+            host = (data.get('host') or 'smtp.gmail.com').strip()
+            port = int(data.get('port') or 587)
+            user = (data.get('user') or '').strip()
+            password = (data.get('pass') or data.get('password') or '').strip()
+            sender_name = (data.get('senderName') or 'ATELIER Security').strip()
+
+            if not user or not password:
+                self.send_json_response({'success': False, 'message': 'SMTP user and password/App Password are required.'}, 400)
+                return
+
+            save_smtp_config(host, port, user, password, sender_name)
+            print(f"[Email Config] SMTP configured for {user} via {host}:{port}", flush=True)
+            self.send_json_response({
+                'success': True,
+                'message': f'SMTP credentials saved successfully for {user}!'
             })
             return
 
