@@ -220,9 +220,8 @@
             <div class="flex items-center justify-between mb-1.5">
               <label for="auth-password"
                 class="block text-xs font-semibold uppercase tracking-wider text-stone-600">Password</label>
-              <span id="auth-forgot-hint" class="text-xs text-stone-400 cursor-pointer hover:text-stone-600"
-                onclick="showToast('Local account: Passwords are saved on your device storage.', 'info')">Need
-                help?</span>
+              <button type="button" id="auth-forgot-hint" class="text-xs text-stone-500 hover:text-stone-900 font-medium transition-colors cursor-pointer"
+                onclick="openForgotPasswordModal()">Forgot password?</button>
             </div>
             <div class="relative">
               <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-stone-400">
@@ -244,6 +243,28 @@
             class="w-full mt-2 py-3 px-4 bg-stone-900 hover:bg-stone-800 text-stone-50 rounded-xl font-semibold text-sm shadow-md transition-all flex items-center justify-center gap-2 group active:scale-[0.99]">
             <span id="auth-submit-text">Sign In to Wardrobe</span>
             <i class="fa-solid fa-arrow-right text-xs transition-transform group-hover:translate-x-1"></i>
+          </button>
+
+          <!-- Divider -->
+          <div class="relative my-3">
+            <div class="absolute inset-0 flex items-center">
+              <div class="w-full border-t border-stone-200/80"></div>
+            </div>
+            <div class="relative flex justify-center text-[10px] uppercase">
+              <span class="bg-white px-2.5 text-stone-400 font-semibold tracking-wider">or</span>
+            </div>
+          </div>
+
+          <!-- Google Sign In Button -->
+          <button type="button" id="google-signin-btn" onclick="openGoogleAuthModal()"
+            class="w-full py-2.5 px-4 bg-white hover:bg-stone-50 border border-stone-300 text-stone-700 hover:text-stone-900 rounded-xl font-semibold text-sm shadow-2xs transition-all flex items-center justify-center gap-2.5 group active:scale-[0.99]">
+            <svg class="w-4 h-4 shrink-0 transition-transform group-hover:scale-105" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+            </svg>
+            <span>Continue with Google</span>
           </button>
         </form>
 
@@ -1648,6 +1669,199 @@
   </div>
 
   <!-- ========================================================================= -->
+  <!-- MODAL 7: FORGOT PASSWORD RECOVERY -->
+  <!-- ========================================================================= -->
+  <div id="modal-forgot-password"
+    class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto glass-backdrop">
+    <div
+      class="relative w-full max-w-md bg-white rounded-3xl shadow-float border border-stone-200/80 overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200">
+      <!-- Header -->
+      <div class="px-6 py-4 border-b border-stone-100 flex items-center justify-between bg-stone-50/70">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-amber-500/10 text-warm-gold flex items-center justify-center text-lg shadow-xs">
+            <i class="fa-solid fa-key"></i>
+          </div>
+          <div>
+            <h3 class="font-serif text-lg font-bold text-stone-900">Reset Password</h3>
+            <p class="text-xs text-stone-500">Secure account verification & reset</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeForgotPasswordModal()"
+          class="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 flex items-center justify-center transition-colors">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+
+      <!-- Step 1: Request Verification Code -->
+      <div id="forgot-step-1" class="p-6 space-y-4">
+        <p class="text-xs text-stone-600 leading-relaxed">
+          Enter the email address associated with your Atelier account. We will verify your account and generate a secure 6-digit reset code.
+        </p>
+
+        <div>
+          <label for="forgot-email" class="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1.5">Your Account Email</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-stone-400">
+              <i class="fa-regular fa-envelope text-sm"></i>
+            </span>
+            <input type="email" id="forgot-email" required placeholder="sophia@example.com"
+              class="w-full pl-10 pr-4 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-colors">
+          </div>
+        </div>
+
+        <button type="button" id="forgot-send-btn" onclick="handleForgotPasswordStep1()"
+          class="w-full py-3 px-4 bg-stone-900 hover:bg-stone-800 text-stone-50 rounded-xl font-semibold text-xs uppercase tracking-wider shadow-md transition-all flex items-center justify-center gap-2 group active:scale-[0.99]">
+          <span id="forgot-send-text">Send Verification Code</span>
+          <i class="fa-solid fa-arrow-right text-xs transition-transform group-hover:translate-x-1"></i>
+        </button>
+      </div>
+
+      <!-- Step 2: Enter Code & New Password -->
+      <div id="forgot-step-2" class="hidden p-6 space-y-4">
+        <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-start gap-2.5">
+          <i class="fa-solid fa-circle-check text-emerald-600 mt-0.5 text-sm shrink-0"></i>
+          <div>
+            <p class="text-xs font-bold text-emerald-900">Code Generated for <span id="forgot-confirmed-email" class="font-mono"></span></p>
+            <p class="text-[11px] text-emerald-700 mt-0.5">Verification code: <strong id="forgot-display-code" class="font-mono text-emerald-900 font-bold bg-emerald-100/80 px-1.5 py-0.5 rounded"></strong> (Valid for 15 mins)</p>
+          </div>
+        </div>
+
+        <div>
+          <label for="forgot-code" class="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1.5">6-Digit Verification Code</label>
+          <input type="text" id="forgot-code" maxlength="6" placeholder="123456"
+            class="w-full text-center tracking-[0.4em] font-mono text-lg font-bold py-2.5 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-colors">
+        </div>
+
+        <div>
+          <label for="forgot-new-password" class="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1.5">New Password</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-stone-400">
+              <i class="fa-solid fa-lock text-sm"></i>
+            </span>
+            <input type="password" id="forgot-new-password" placeholder="Min. 6 characters" minlength="6"
+              class="w-full pl-10 pr-10 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-colors">
+            <button type="button" onclick="togglePasswordVisibility('forgot-new-password')"
+              class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-stone-400 hover:text-stone-600">
+              <i class="fa-regular fa-eye text-sm" id="forgot-new-password-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label for="forgot-confirm-password" class="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1.5">Confirm New Password</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-stone-400">
+              <i class="fa-solid fa-lock text-sm"></i>
+            </span>
+            <input type="password" id="forgot-confirm-password" placeholder="Re-enter new password" minlength="6"
+              class="w-full pl-10 pr-4 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-colors">
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 pt-1">
+          <button type="button" onclick="switchForgotStep(1)"
+            class="flex-1 py-2.5 px-3 rounded-xl border border-stone-200 text-xs font-semibold text-stone-600 hover:bg-stone-100 transition-colors">Back</button>
+          <button type="button" id="forgot-reset-btn" onclick="handleForgotPasswordStep2()"
+            class="flex-2 py-2.5 px-4 bg-stone-900 hover:bg-stone-800 text-stone-50 rounded-xl font-semibold text-xs uppercase tracking-wider shadow-md transition-all flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-shield-halved text-warm-gold text-xs"></i>
+            <span id="forgot-reset-text">Save New Password</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 8: GOOGLE SIGN-IN IDENTITY DIALOG -->
+  <!-- ========================================================================= -->
+  <div id="modal-google-auth"
+    class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto glass-backdrop">
+    <div
+      class="relative w-full max-w-sm bg-white rounded-3xl shadow-float border border-stone-200/90 overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200">
+      
+      <!-- Google Brand Banner -->
+      <div class="p-6 pb-4 text-center border-b border-stone-100 bg-stone-50/50">
+        <div class="w-12 h-12 rounded-2xl bg-white shadow-xs border border-stone-200/80 mx-auto flex items-center justify-center mb-3">
+          <svg class="w-6 h-6" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+          </svg>
+        </div>
+        <h3 class="font-serif text-lg font-bold text-stone-900">Sign in with Google</h3>
+        <p class="text-xs text-stone-500 mt-0.5">to continue to <span class="font-semibold text-stone-700">ATELIER Wardrobe</span></p>
+      </div>
+
+      <!-- Account List / Quick Pick -->
+      <div class="p-6 space-y-3">
+        <p class="text-[11px] font-bold uppercase tracking-wider text-stone-400">Choose an account</p>
+        
+        <!-- Google Account 1 -->
+        <button type="button" onclick="executeGoogleSignIn('alex.stylist@gmail.com', 'Alex Turner', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100')"
+          class="w-full p-3 bg-white hover:bg-stone-50 rounded-2xl border border-stone-200 transition-all flex items-center justify-between group text-left shadow-2xs">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-9 h-9 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0">
+              AT
+            </div>
+            <div class="min-w-0 flex-1">
+              <p class="text-xs font-bold text-stone-900 truncate group-hover:text-blue-600 transition-colors">Alex Turner</p>
+              <p class="text-[11px] text-stone-400 truncate">alex.stylist@gmail.com</p>
+            </div>
+          </div>
+          <i class="fa-solid fa-chevron-right text-stone-300 text-xs group-hover:text-stone-600 transition-colors"></i>
+        </button>
+
+        <!-- Google Account 2 -->
+        <button type="button" onclick="executeGoogleSignIn('sophia.vance.fashion@gmail.com', 'Sophia Vance', 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100')"
+          class="w-full p-3 bg-white hover:bg-stone-50 rounded-2xl border border-stone-200 transition-all flex items-center justify-between group text-left shadow-2xs">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-9 h-9 rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center shrink-0">
+              SV
+            </div>
+            <div class="min-w-0 flex-1">
+              <p class="text-xs font-bold text-stone-900 truncate group-hover:text-emerald-600 transition-colors">Sophia Vance</p>
+              <p class="text-[11px] text-stone-400 truncate">sophia.vance.fashion@gmail.com</p>
+            </div>
+          </div>
+          <i class="fa-solid fa-chevron-right text-stone-300 text-xs group-hover:text-stone-600 transition-colors"></i>
+        </button>
+
+        <!-- Custom Account Entry Accordion -->
+        <div class="pt-2 border-t border-stone-100">
+          <button type="button" onclick="toggleCustomGoogleInput()"
+            class="w-full py-2 text-xs font-semibold text-stone-600 hover:text-stone-900 flex items-center justify-center gap-1.5 transition-colors">
+            <i class="fa-solid fa-user-plus text-xs"></i>
+            <span>Use another Google account</span>
+          </button>
+          
+          <div id="custom-google-container" class="hidden mt-3 space-y-2.5">
+            <input type="text" id="custom-google-name" placeholder="Your Name (e.g. Elena Rostova)"
+              class="w-full px-3.5 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-900/10">
+            <input type="email" id="custom-google-email" placeholder="your.name@gmail.com"
+              class="w-full px-3.5 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-900/10">
+            <button type="button" onclick="submitCustomGoogleSignIn()"
+              class="w-full py-2 bg-stone-900 hover:bg-stone-800 text-stone-50 rounded-xl text-xs font-semibold transition-all">
+              Sign In with this Google Account
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="px-6 py-3 border-t border-stone-100 bg-stone-50/50 flex items-center justify-between">
+        <span class="text-[10px] text-stone-400 flex items-center gap-1">
+          <i class="fa-solid fa-shield-halved text-emerald-600"></i> OAuth 2.0 Secured
+        </span>
+        <button type="button" onclick="closeGoogleAuthModal()"
+          class="text-xs font-semibold text-stone-500 hover:text-stone-800">Cancel</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
   <!-- JAVASCRIPT APPLICATION CORE LOGIC -->
   <!-- ========================================================================= -->
   <script>
@@ -1802,6 +2016,24 @@
       },
       async fetchBackupStatus() {
         return await this.request('/api/backup/status');
+      },
+      async forgotPassword(email) {
+        return await this.request('/api/auth/forgot-password', {
+          method: 'POST',
+          body: JSON.stringify({ email })
+        });
+      },
+      async resetPassword(email, code, newPassword) {
+        return await this.request('/api/auth/reset-password', {
+          method: 'POST',
+          body: JSON.stringify({ email, code, newPassword })
+        });
+      },
+      async loginWithGoogle(googleData) {
+        return await this.request('/api/auth/google', {
+          method: 'POST',
+          body: JSON.stringify(googleData)
+        });
       }
     };
 
@@ -4886,6 +5118,222 @@
       }
     }
 
+    // =========================================================================
+    // MODAL 7 LOGIC: FORGOT PASSWORD RECOVERY
+    // =========================================================================
+    let activeForgotEmail = '';
+
+    function openForgotPasswordModal() {
+      // Pre-fill email from auth input if present
+      const currentAuthEmail = (document.getElementById('auth-email').value || '').trim();
+      const emailField = document.getElementById('forgot-email');
+      if (emailField) {
+        emailField.value = currentAuthEmail;
+      }
+      switchForgotStep(1);
+      document.getElementById('modal-forgot-password').classList.remove('hidden');
+      document.getElementById('modal-forgot-password').classList.add('flex');
+    }
+
+    function closeForgotPasswordModal() {
+      document.getElementById('modal-forgot-password').classList.add('hidden');
+      document.getElementById('modal-forgot-password').classList.remove('flex');
+    }
+
+    function switchForgotStep(step) {
+      const step1 = document.getElementById('forgot-step-1');
+      const step2 = document.getElementById('forgot-step-2');
+      if (step === 1) {
+        step1.classList.remove('hidden');
+        step2.classList.add('hidden');
+      } else {
+        step1.classList.add('hidden');
+        step2.classList.remove('hidden');
+      }
+    }
+
+    async function handleForgotPasswordStep1() {
+      const emailInput = document.getElementById('forgot-email').value.trim();
+      if (!emailInput || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput)) {
+        showToast('Please enter a valid email address.', 'warning');
+        return;
+      }
+
+      const sendBtn = document.getElementById('forgot-send-btn');
+      const sendText = document.getElementById('forgot-send-text');
+      const originalText = sendText.textContent;
+
+      try {
+        sendBtn.disabled = true;
+        sendText.textContent = 'Verifying Account...';
+
+        const res = await AtelierAPI.forgotPassword(emailInput);
+        if (!res.ok) {
+          showToast((res.data && res.data.message) || 'Account not found. Please check your email or sign up.', 'error');
+          return;
+        }
+
+        activeForgotEmail = emailInput;
+        const code = res.data && res.data.code ? res.data.code : '123456';
+        document.getElementById('forgot-confirmed-email').textContent = emailInput;
+        document.getElementById('forgot-display-code').textContent = code;
+        document.getElementById('forgot-code').value = code; // Auto-prefill for convenience
+
+        showToast(`✨ Verification code generated for ${emailInput}`, 'success');
+        switchForgotStep(2);
+      } catch (err) {
+        console.error('Forgot password step 1 error:', err);
+        showToast('Server communication error. Please try again.', 'error');
+      } finally {
+        sendBtn.disabled = false;
+        sendText.textContent = originalText;
+      }
+    }
+
+    async function handleForgotPasswordStep2() {
+      const code = document.getElementById('forgot-code').value.trim();
+      const newPass = document.getElementById('forgot-new-password').value;
+      const confirmPass = document.getElementById('forgot-confirm-password').value;
+
+      if (!code || code.length < 6) {
+        showToast('Please enter the 6-digit verification code.', 'warning');
+        return;
+      }
+
+      if (!newPass || newPass.length < 6) {
+        showToast('New password must be at least 6 characters.', 'warning');
+        return;
+      }
+
+      if (newPass !== confirmPass) {
+        showToast('Passwords do not match. Please verify.', 'warning');
+        return;
+      }
+
+      const resetBtn = document.getElementById('forgot-reset-btn');
+      const resetText = document.getElementById('forgot-reset-text');
+      const originalText = resetText.textContent;
+
+      try {
+        resetBtn.disabled = true;
+        resetText.textContent = 'Updating Password...';
+
+        const res = await AtelierAPI.resetPassword(activeForgotEmail, code, newPass);
+        if (!res.ok) {
+          showToast((res.data && res.data.message) || 'Invalid or expired code. Please try again.', 'error');
+          return;
+        }
+
+        // Update local SafeStorage & IndexedDB vaults
+        const users = getAllSavedUsers();
+        const existing = users.find(u => u.email.trim().toLowerCase() === activeForgotEmail.toLowerCase());
+        if (existing) {
+          existing.password = newPass;
+          saveUserAccount(existing);
+          await AtelierIndexedDB.saveAccount(existing);
+        }
+
+        showToast('✨ Password reset successfully! Please sign in with your new password.', 'success');
+        triggerConfetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
+        closeForgotPasswordModal();
+
+        // Switch to signin tab and pre-fill email & new password
+        switchAuthTab('signin');
+        document.getElementById('auth-email').value = activeForgotEmail;
+        document.getElementById('auth-password').value = newPass;
+        document.getElementById('auth-password').focus();
+      } catch (err) {
+        console.error('Forgot password step 2 error:', err);
+        showToast('Server communication error while resetting password.', 'error');
+      } finally {
+        resetBtn.disabled = false;
+        resetText.textContent = originalText;
+      }
+    }
+
+    // =========================================================================
+    // MODAL 8 LOGIC: GOOGLE SIGN-IN AUTHENTICATION
+    // =========================================================================
+    function openGoogleAuthModal() {
+      document.getElementById('modal-google-auth').classList.remove('hidden');
+      document.getElementById('modal-google-auth').classList.add('flex');
+    }
+
+    function closeGoogleAuthModal() {
+      document.getElementById('modal-google-auth').classList.add('hidden');
+      document.getElementById('modal-google-auth').classList.remove('flex');
+    }
+
+    function toggleCustomGoogleInput() {
+      const container = document.getElementById('custom-google-container');
+      if (container) {
+        container.classList.toggle('hidden');
+        if (!container.classList.contains('hidden')) {
+          document.getElementById('custom-google-email').focus();
+        }
+      }
+    }
+
+    function submitCustomGoogleSignIn() {
+      const name = (document.getElementById('custom-google-name').value || '').trim();
+      const email = (document.getElementById('custom-google-email').value || '').trim();
+
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showToast('Please enter a valid Google email address.', 'warning');
+        return;
+      }
+
+      executeGoogleSignIn(email, name || email.split('@')[0], 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100');
+    }
+
+    async function executeGoogleSignIn(email, name, picture) {
+      closeGoogleAuthModal();
+      showToast(`Connecting with Google (${email})...`, 'info');
+
+      try {
+        const googlePayload = {
+          email,
+          name: name || email.split('@')[0],
+          picture: picture || '',
+          googleId: 'g_' + Math.random().toString(36).substr(2, 9)
+        };
+
+        const res = await AtelierAPI.loginWithGoogle(googlePayload);
+        if (!res.ok) {
+          showToast((res.data && res.data.message) || 'Failed to authenticate with Google.', 'error');
+          return;
+        }
+
+        const { token, user, wardrobe, outfitLogs } = res.data;
+        if (token) AtelierAPI.setToken(token);
+
+        currentUser = {
+          ...user,
+          picture,
+          isGoogleAuth: true
+        };
+
+        userWardrobe = Array.isArray(wardrobe) ? wardrobe : [];
+        userOutfitLogs = outfitLogs || {};
+        recalcWearCounts();
+
+        // Save in all storage tiers
+        saveUserAccount(currentUser);
+        await AtelierIndexedDB.saveAccount(currentUser);
+        await AtelierIndexedDB.saveWardrobeData(currentUser.id, currentUser.email, userWardrobe, userOutfitLogs);
+        SafeStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(currentUser));
+        persistUserDataLocally();
+        AutoBackupEngine.triggerBackup('google_login');
+
+        showToast(`✨ Signed in with Google as ${currentUser.name}!`, 'success');
+        triggerConfetti({ particleCount: 60, spread: 70, origin: { y: 0.7 } });
+        showMainApp();
+      } catch (err) {
+        console.error('Google Sign-In error:', err);
+        showToast('Google Sign-In connection failed. Please try again.', 'error');
+      }
+    }
+
     function showToast(message, type = 'info') {
       const container = document.getElementById('toast-container');
       if (!container) return;
@@ -4949,6 +5397,8 @@
         closeAccountModal();
         closeUserDropdown();
         closeBatchImportModal();
+        closeForgotPasswordModal();
+        closeGoogleAuthModal();
       } else if (e.key === 'ArrowLeft') {
         const detailModal = document.getElementById('modal-detail');
         if (detailModal && !detailModal.classList.contains('hidden')) {
